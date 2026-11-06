@@ -1,4 +1,4 @@
-# Render blueprint for the Express server only (the web app deploys to Vercel from vercel.json).
+# Render blueprint for the Express server only (the web app deploys to Vercel with Root Directory apps/web).
 # Node version comes from .nvmrc (22.23.4). Dev dependencies stay installed because the start
 # command runs TypeScript through tsx; do not set NODE_ENV=production here.
 services:

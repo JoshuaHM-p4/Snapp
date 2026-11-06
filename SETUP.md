@@ -209,10 +209,10 @@ For optional Velo collection only, configure `VELO_API_KEY`/`VELO_WEBHOOK_SECRET
 | `SNAPP_AUTOPILOT_DISABLED` | agent CLI shell | `true` halts new autopilot executions |
 
 ## 6a. Deploy (public URL is a submission requirement)
-Web and server deploy separately. Config is committed: [`vercel.json`](vercel.json) builds `apps/web` with an SPA fallback; [`render.yaml`](render.yaml) runs the Express server with `/api/health` as the health check. Both commands were verified locally (`npm ci` → `npm run build -w @agentpay/web` with `VITE_API_BASE` embedded, and `npm run start -w @agentpay/server` answering health with the CORS origin set).
+Web and server deploy separately. Config is committed: [`apps/web/vercel.json`](apps/web/vercel.json) (Vercel project Root Directory = `apps/web`) sets the Vite output and SPA fallback; [`render.yaml`](render.yaml) runs the Express server with `/api/health` as the health check. Both commands were verified locally (`npm ci` → `npm run build -w @agentpay/web` with `VITE_API_BASE` embedded, and `npm run start -w @agentpay/server` answering health with the CORS origin set).
 
 1. **Server first (Render):** New → Blueprint → this repo. Set `WEB_ORIGIN` and `PUBLIC_WEB_URL` to the Vercel URL you will use (you can update after step 2), `ADMIN_API_TOKEN` to a random secret, and leave `DEMO_MODE=true` unless you also set real `VELO_API_KEY`/`VELO_WEBHOOK_SECRET`. Note the service URL, e.g. `https://snapp-server.onrender.com`.
-2. **Web (Vercel):** Import the repo; the committed `vercel.json` supplies install/build/output. Add one environment variable: `VITE_API_BASE=https://snapp-server.onrender.com` (no trailing slash). Deploy, then put the resulting URL into Render's `WEB_ORIGIN`/`PUBLIC_WEB_URL` and redeploy the server.
+2. **Web (Vercel):** Import the repo with **Root Directory `apps/web`**; the committed `apps/web/vercel.json` supplies output dir and SPA fallback, and Vercel installs workspaces from the monorepo root automatically. Add one environment variable: `VITE_API_BASE=https://snapp-server.onrender.com` (no trailing slash). Deploy, then put the resulting URL into Render's `WEB_ORIGIN`/`PUBLIC_WEB_URL` and redeploy the server.
 3. **Velo webhook:** in the Velo dashboard, set the endpoint to `https://snapp-server.onrender.com/api/webhooks/velo` and copy its signing secret into `VELO_WEBHOOK_SECRET`.
 4. **Verify from another device:** open the Vercel URL, run the agent decision preview (three `hold` results, no payment), then `curl https://snapp-server.onrender.com/api/health`.
 

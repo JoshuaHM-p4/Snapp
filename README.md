@@ -145,7 +145,7 @@ scripts/              Local smoke check
 3. `cp apps/server/.env.example apps/server/.env` and keep `DEMO_MODE=true`.
 4. Run `npm run dev`: web `http://localhost:5173`, server `http://localhost:4000`.
 5. Run `npm run typecheck && npm test && npm run build`. See full [SETUP.md](SETUP.md).
-6. Deploy: web on Vercel from the committed [`vercel.json`](vercel.json) with `VITE_API_BASE` set; server on Render from [`render.yaml`](render.yaml) with `WEB_ORIGIN`/`PUBLIC_WEB_URL` pointing at the Vercel URL. Steps in [SETUP §6a](SETUP.md#6a-deploy-public-url-is-a-submission-requirement).
+6. Deploy: web on Vercel (Root Directory `apps/web`, committed [`apps/web/vercel.json`](apps/web/vercel.json)) with `VITE_API_BASE` set; server on Render from [`render.yaml`](render.yaml) with `WEB_ORIGIN`/`PUBLIC_WEB_URL` pointing at the Vercel URL. Steps in [SETUP §6a](SETUP.md#6a-deploy-public-url-is-a-submission-requirement).
 
 ## Environment variables
 | Name | What it is | Where to get it |
