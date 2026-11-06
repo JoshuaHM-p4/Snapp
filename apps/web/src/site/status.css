@@ -1,0 +1,83 @@
+.s-status {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.s-status-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px clamp(16px, 4vw, 48px);
+}
+.s-status-logo {
+  height: 28px;
+  width: auto;
+  color: var(--text);
+}
+.s-status-main {
+  align-self: center;
+  justify-self: center;
+  width: min(600px, 100%);
+  display: grid;
+  gap: 20px;
+  padding: 48px 16px 96px;
+}
+.s-status-main--inline {
+  justify-self: start;
+  padding: 24px 0;
+}
+.s-status-main h1 {
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+.s-status-lede {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--muted);
+  max-width: 56ch;
+}
+.s-status-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.s-status-icon.is-pending {
+  color: var(--attention);
+  border-color: color-mix(in srgb, var(--attention) 50%, transparent);
+}
+.s-status-icon.is-cancel {
+  color: var(--stop);
+  border-color: color-mix(in srgb, var(--stop) 50%, transparent);
+}
+.s-status-facts {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+.s-status-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+.s-status-facts dt {
+  color: var(--muted);
+}
+.s-status-facts dd {
+  margin: 0;
+  text-align: right;
+}
+.s-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
