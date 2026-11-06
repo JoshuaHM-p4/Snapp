@@ -2,13 +2,9 @@ import {DatabaseSync} from 'node:sqlite';
 import {mkdirSync} from 'node:fs';
 import path from 'node:path';
 import type {PaymentIntent, PaymentIntentStatus} from '@carts1024/velo-sdk';
+import type {Collection} from '@agentpay/shared';
 import type {VerifiedVeloEvent} from './payments.js';
 
-/** A client collection attempt through Velo. Separate from employee pay, Noir escrow and PHP invoice accounting. */
-export interface Collection {
-  paymentIntentId:string; projectId:string; amountXlm:string; asset:string; status:PaymentIntentStatus;
-  checkoutUrl:string|null; txHash:string|null; createdAt:string; updatedAt:string;
-}
 const TERMINAL:PaymentIntentStatus[]=['paid','failed','expired','cancelled'];
 export class CollectionStore {
   readonly db:DatabaseSync;
