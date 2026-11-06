@@ -94,7 +94,7 @@ function fixture(t:TestContext,a:Approval=approval(manifest)) {
 
 function authorizationEvent(a:Approval,hash:string,id='matching'):rpc.Api.EventResponse {
   return {id,type:'contract',ledger,ledgerClosedAt:'2026-11-06T00:00:00Z',txHash:hash,
-    contractId:new Contract(CONTRACTS.paymentEscrow),inSuccessfulContractCall:true,
+    contractId:new Contract(CONTRACTS.paymentEscrow), // current RPC omits inSuccessfulContractCall; SUCCESS comes from getTransaction
     topic:[xdr.ScVal.scvSymbol('authorize'),xdr.ScVal.scvBytes(Buffer.from(a.manifest.deviceHash,'hex')),new Address(a.manifest.merchant).toScVal()],
     value:nativeToScVal(a.amounts.amount,{type:'i128'})} as rpc.Api.EventResponse;
 }
@@ -178,7 +178,6 @@ test('SUCCESS filters decoded event pages by hash, contract, type, ledger, devic
     {...event,id:'merchant',topic:[...event.topic.slice(0,2),new Address(outsider.publicKey()).toScVal()]},
     {...event,id:'amount',value:nativeToScVal(1n,{type:'i128'})},
     {...event,id:'type',topic:[xdr.ScVal.scvSymbol('fund'),event.topic[1]!] },
-    {...event,id:'failed-call',inSuccessfulContractCall:false},
   ];
   const pages=()=>[
     {events:unrelated,cursor:cursor(ledger-1),latestLedger:ledger},

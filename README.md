@@ -23,7 +23,7 @@ The company already uses **Proyekto** for project/client collaboration, document
 ## Solution
 Snapp targets cutoff preparation, manual owner review, employee pay transparency and approved-run execution alongside Proyekto. Milestones bundle task/deliverable evidence and client evaluations; they are not the default unit of hourly employee pay. The owner retains hours review and final release authority. The agent cannot set wages or change approved recipients and amounts.
 
-**Current status:** fictional milestone previews and Velo adapters remain, alongside separate controlled **local Noir Testnet tooling**. The local CLI supports exact owner-signed single-item consent, owner setup, agent authorization, merchant claim, SQLite reconciliation and **Snapp Autopilot**: a Payment Eligibility Engine (deterministic rules) plus a Payout Risk & Review Agent (Jev) that decides when an owner-approved item is executed through Noir. It is not an authenticated payroll workflow. Proyekto integration, cutoff review, client-evaluation history, employee statements, approved pay runs, RBAC and bank payouts are **not implemented**. Live Testnet authorization/claim proof remains unverified.
+**Current status:** fictional milestone previews and Velo adapters remain, alongside separate controlled **local Noir Testnet tooling**. The local CLI supports exact owner-signed single-item consent, owner setup, agent authorization, merchant claim, SQLite reconciliation and **Snapp Autopilot**: a Payment Eligibility Engine (deterministic rules) plus a Payout Risk & Review Agent (Jev) that decides when an owner-approved item is executed through Noir. It is not an authenticated payroll workflow. Proyekto integration, cutoff review, client-evaluation history, employee statements, approved pay runs, RBAC and bank payouts are **not implemented**. Live Testnet proof: see [Testnet proof](#testnet-proof).
 
 ### Target workflow
 1. Reference Proyekto projects, time entries and versioned deliverables. Record client comments, revision requests and acceptance against the evaluated version. Integration access still needs verification.
@@ -114,9 +114,19 @@ The second diagram is the target, not the current implementation. See [architect
 - Collections store: [collections.ts](apps/server/src/collections.ts). Checkout records the intent; webhooks are deduped on `event.id` and status is set only from `paymentIntents.retrieve`. `GET /api/collections` lists them. Verified with self-signed events and one real Velo Testnet collection: intent created by this server, paid on-chain ([tx fe057622…](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045)), `paid` confirmed from Velo's API. Live webhook delivery (which supplies `txHash`) needs the deployed server URL. `POST /api/collections/:id/reconcile` (admin) re-checks a missed delivery.
 
 ## Testnet proof
-**Velo (client collection):** [fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045): 0.5 XLM paid through a checkout this server created; Velo reported `paid`. This is a client payment, not the agent's Noir payment.
+**Noir (agent payment), Stellar Testnet, Nov 6 2026.** One owner-approved 1.5 XLM item, decided and executed by Snapp Autopilot, collected by the merchant. Each transaction was confirmed by RPC and its contract event decoded and matched (device hash, merchant, amount) by `npm run noir -- reconcile`.
 
-**Noir (agent payment): live Testnet unverified — no agent transaction proof claimed yet.** Collect genuine [Stellar Expert Testnet](https://stellar.expert/explorer/testnet) links and separate confirmed setup, authorization and merchant-claim ledgers/events after the live prerequisites are met. Neither fixture previews, synthetic SDK transport checks, pending balances nor a merely recorded hash is settlement proof.
+| Step | Signer | Ledger | Transaction |
+|---|---|---|---|
+| registerDevice | owner | 5589778 | [94ca07a7…9a72](https://stellar.expert/explorer/testnet/tx/94ca07a78a952786bee142cdac68fdb26f409a1422e04a6108e03f17e2539a72) |
+| registerAgent (cap 2 XLM, native, expires 2026-11-20) | owner | 5589783 | [5b0f759a…6eb1](https://stellar.expert/explorer/testnet/tx/5b0f759a9b61cd96791df95821900f22c93fec4ed3e796ab3bf314c52c0a6eb1) |
+| fundEscrow (5 XLM) | owner | 5589790 | [eceed372…033f](https://stellar.expert/explorer/testnet/tx/eceed372739dc3c81e7bd395374bff33c1d2f3a12b9d5ec90a138ba504da033f) |
+| **authorize 1.5 XLM → merchant** (agent decision: eligibility passed, Jev `routine` P=1.00, concern 0.03 → EXECUTE) | **agent** | 5589865 | [92713462…5c5d](https://stellar.expert/explorer/testnet/tx/9271346277a3a9b69763ba00af1405fe6f5a72f9965847aa7b40c6735b275c5d) |
+| claim (aggregate 15,000,000 stroops) | merchant | 5589949 | [e2bdbb00…2bb4](https://stellar.expert/explorer/testnet/tx/e2bdbb00816474d5174cea16ea7993422318fd69a534828f7587f479c5ba2bb4) |
+
+Roles: owner `GCGBYAA7…UKCBX`, agent `GAOBNDIG…5X6T`, merchant `GBXQJACH…VKE6`; device hash `b616f1cc…7185`. After the claim: merchant pending 0, escrow 3.5 XLM, merchant balance +1.5 XLM. The agent decision log (both verdicts, Jev probabilities, input hash) is in the local journal and printed by `evidence`.
+
+**Velo (client collection):** [fe057622…d44045](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045): 0.5 XLM paid through a checkout this server created; Velo reported `paid`. This is a client payment, not the agent's Noir payment. Collect genuine [Stellar Expert Testnet](https://stellar.expert/explorer/testnet) links and separate confirmed setup, authorization and merchant-claim ledgers/events after the live prerequisites are met. Neither fixture previews, synthetic SDK transport checks, pending balances nor a merely recorded hash is settlement proof.
 
 ## Repo structure
 ```

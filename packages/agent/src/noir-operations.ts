@@ -1,4 +1,4 @@
-import {type NoirAgentClient,type NoirSigner,type NoirOperation,type NoirAgentPolicy, type NoirEvent,cursorLedger} from '@noirx402/agent-sdk';
+import {type NoirAgentClient,type NoirSigner,type NoirOperation,type NoirAgentPolicy, type NoirEvent,cursorLedger,decodeEvent} from '@noirx402/agent-sdk';
 import {ASSET,CONTRACTS,NoirFailure,prepareSigned,requireCondition,verifyNetwork} from './noir.js';
 import {type Approval,requireFresh,requireMerchant,json} from './noir-experiment.js';
 import {Journal,type OperationRow} from './noir-store.js';
@@ -126,12 +126,20 @@ export async function reconcile(client:NoirAgentClient,journal:Journal,a:Approva
     if(tx.status==='FAILED'){journal.transition(row,'failed',tx.ledger,{...JSON.parse(row.evidence_json),transaction:{hash:row.tx_hash,ledger:tx.ledger,status:tx.status},eventEvidence:'incomplete'});continue;}
     const confirmed={...row,ledger:tx.ledger};
     const found=new Map<string,NoirEvent>();let eventComplete=false;
+    // SDK 0.3.0's decodeEvent requires `inSuccessfulContractCall`, a field current RPC responses omit, so
+    // client.getEvents() decodes nothing. We only decode events whose txHash is this row's, and RPC has just
+    // reported that transaction SUCCESS, which is exactly what the flag asserts. Still the official decoder.
+    const filters=[{type:'contract' as const,contractIds:Object.values(client.contracts)}];
     try{
-      let page=await client.getEvents({startLedger:tx.ledger,limit:100});
+      let page=await client.server.getEvents({startLedger:tx.ledger,filters,limit:100});
       for(;;){
-        for(const event of page.events)if(matchesEvent(event,confirmed,a))found.set(event.id,event);
+        for(const raw of page.events){
+          if(raw.txHash!==row.tx_hash)continue;
+          const event=decodeEvent({...raw,inSuccessfulContractCall:true} as typeof raw,client.contracts);
+          if(event&&matchesEvent(event,confirmed,a))found.set(event.id,event);
+        }
         if(page.events.length<100 && cursorLedger(page.cursor)>=page.latestLedger){eventComplete=true;break;}
-        const previous=page.cursor;page=await client.getEvents({cursor:previous,limit:100});
+        const previous=page.cursor;page=await client.server.getEvents({cursor:previous,filters,limit:100});
         requireCondition(page.cursor!==previous,'EVENT_PAGINATION_STALLED');
       }
     }catch{ /* Retention/network gaps do not erase transaction confirmation. */ }

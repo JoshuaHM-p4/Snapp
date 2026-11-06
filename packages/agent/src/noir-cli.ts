@@ -43,6 +43,9 @@ function installedVersion(name:string):string {
     const parent=dirname(dir);requireCondition(parent!==dir,'PACKAGE_VERSION_UNAVAILABLE');dir=parent;
   }
 }
+function signerFor(secret:string){
+  try{return keypairSigner(secret.trim());}catch{throw new NoirFailure("INVALID_SECRET");}
+}
 async function main():Promise<void>{
   let args;
   try{args=parseArgs({allowPositionals:true,strict:true,options:{help:{type:'boolean'},manifest:{type:'string'},db:{type:'string'},confirm:{type:'string'},step:{type:'string'},live:{type:'boolean'},'pending-stroops':{type:'string'},payout:{type:'string'},every:{type:'string'}}});}
@@ -99,7 +102,7 @@ async function main():Promise<void>{
     journal.verify(a);
     if(command==='autopilot'){
       const secret=process.env.NOIR_AGENT_SECRET;requireCondition(secret,'AGENT_SECRET_REQUIRED');
-      const execute={signer:keypairSigner(secret),consent:{live:true,confirm:v.confirm,attested:true,allowlist:process.env.ALLOWED_MERCHANT_ADDRESSES}};
+      const execute={signer:signerFor(secret),consent:{live:true,confirm:v.confirm,attested:true,allowlist:process.env.ALLOWED_MERCHANT_ADDRESSES}};
       for(;;){
         const result=await runAutopilot(deps(),a,payout!,execute) as {decision:string};
         console.log(json({at:new Date().toISOString(),...result}));
@@ -109,7 +112,7 @@ async function main():Promise<void>{
     }
     const role=command==='authorize'?'AGENT':command==='claim'?'MERCHANT':'OWNER';
     const secret=process.env[`NOIR_${role}_SECRET`];requireCondition(secret,`${role}_SECRET_REQUIRED`);
-    const signer=keypairSigner(secret);
+    const signer=signerFor(secret);
     const kind=(command==='setup'?v.step:command) as CommandKind;
     console.log(json(await executeOperation(createClient(),journal,a,kind,signer,{live:v.live===true,confirm:v.confirm,attested:process.env.NOIR_TESTNET_CONTRACTS_CONFIRMED==='true',allowlist:process.env.ALLOWED_MERCHANT_ADDRESSES,pendingStroops:v['pending-stroops']})));
   }finally{journal.close();}
