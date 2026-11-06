@@ -4,6 +4,14 @@ Everything below is Stellar Testnet. Nothing here touches real money, bank accou
 
 ## 0. Prerequisites (once, ~20 min, off camera)
 
+**One command does all of this section:**
+
+```bash
+bash scripts/demo-prep.sh demo-1107
+```
+
+It generates three new Testnet keys into `~/.snapp-roles-demo-1107.txt` (outside the repo, mode 600), Friendbot-funds them, writes the demo files, signs the owner approval and runs the three setup steps, reconciling each before the next, then prints the exports for the agent and merchant shells. Rerunning with the same id resumes safely. `--prep-only` stops before any chain write. The manual steps below are the same thing spelled out.
+
 The keys used on Nov 6 were exposed and must not be reused. Generate three new Testnet accounts and fund them:
 
 ```bash
