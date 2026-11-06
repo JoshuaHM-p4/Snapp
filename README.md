@@ -111,10 +111,12 @@ The second diagram is the target, not the current implementation. See [architect
 - This starter declares `@carts1024/velo-sdk@alpha` (resolved version unverified). The current upstream README describes stable `1.0.0`; this documentation update does not upgrade or validate the dependency. Compare actual exports before implementation.
 - Checkout: [server Velo adapter](apps/server/src/payments.ts), [protected checkout endpoint](apps/server/src/index.ts).
 - Raw signed webhook verification: [webhook route](apps/server/src/index.ts) using `Velo.webhooks.verify`.
-- Collections store: [collections.ts](apps/server/src/collections.ts). Checkout records the intent; webhooks are deduped on `event.id` and status is set only from `paymentIntents.retrieve`. `GET /api/collections` lists them. Verified locally with self-signed events; a real Velo project/API key run is still pending.
+- Collections store: [collections.ts](apps/server/src/collections.ts). Checkout records the intent; webhooks are deduped on `event.id` and status is set only from `paymentIntents.retrieve`. `GET /api/collections` lists them. Verified with self-signed events and one real Velo Testnet collection: intent created by this server, paid on-chain ([tx fe057622…](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045)), `paid` confirmed from Velo's API. Live webhook delivery (which supplies `txHash`) needs the deployed server URL. `POST /api/collections/:id/reconcile` (admin) re-checks a missed delivery.
 
 ## Testnet proof
-**Live Testnet unverified — no transaction proof claimed.** Collect genuine [Stellar Expert Testnet](https://stellar.expert/explorer/testnet) links and separate confirmed setup, authorization and merchant-claim ledgers/events after the live prerequisites are met. Neither fixture previews, synthetic SDK transport checks, pending balances nor a merely recorded hash is settlement proof.
+**Velo (client collection):** [fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045): 0.5 XLM paid through a checkout this server created; Velo reported `paid`. This is a client payment, not the agent's Noir payment.
+
+**Noir (agent payment): live Testnet unverified — no agent transaction proof claimed yet.** Collect genuine [Stellar Expert Testnet](https://stellar.expert/explorer/testnet) links and separate confirmed setup, authorization and merchant-claim ledgers/events after the live prerequisites are met. Neither fixture previews, synthetic SDK transport checks, pending balances nor a merely recorded hash is settlement proof.
 
 ## Repo structure
 ```

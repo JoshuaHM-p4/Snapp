@@ -90,7 +90,8 @@ All live hackathon gates below remain open. Exercised local checks are recorded 
 ## F. Velo client collections — separate hackathon path, optional to company payroll
 - [ ] Verify exact declared/installed SDK version against [current upstream release scope](https://github.com/Velo-Ecosystem-Collection/Velo/blob/main/packages/velo-sdk/README.md#release-scope): repository alpha declaration does not mean an upgrade occurred; upstream says Stellar Testnet only, no Mainnet, settlement or external provider
 - [x] Persist client collection intents and signed webhook idempotency (SQLite `collections` + `velo_events`); status only from `paymentIntents.retrieve`; terminal states never regress; store test plus live route smoke with self-signed valid/replay/tampered/missing events
-- [ ] Exercise checkout → webhook → retrieve against a real Velo Testnet project and API key (none configured here); confirm the `paid` transition and record the hash
+- [x] Real Velo Testnet run (Nov 6): project registered on-chain after Friendbot-funding its owner wallet; payments-scope key accepted; `POST /api/payments/checkout` created intent `jx7c2kdzshtnb8tqkpw5tfkr098hp65m` (0.5 XLM); hosted checkout paid from a Testnet wallet; Velo API reported `paid`; on-chain payment [fe057622…d44045](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045); local record moved to `paid` via the new admin `POST /api/collections/:id/reconcile` because the webhook cannot reach localhost
+- [ ] Live `payment.succeeded` webhook delivery (fills `txHash`): needs the server deployed at a public URL and that URL set in the Velo dashboard
 - [ ] Produce genuine Testnet collection evidence for the hackathon integration; never use a redirect as payment proof
 - [ ] Keep Velo separate from payroll payout and escrow funding
 

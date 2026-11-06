@@ -36,4 +36,10 @@ app.post('/api/payments/checkout',auth,async(req,res)=>{if(process.env.DEMO_MODE
  if(!project||typeof amountXlm!=='string'||!/^\d+(\.\d{1,7})?$/.test(amountXlm)||Number(amountXlm)<=0)return res.status(400).json({error:'Invalid project or XLM amount'});
  try{const base=process.env.PUBLIC_WEB_URL??'http://localhost:5173';const intent=await createCheckout({description:`Snapp Testnet project ${project.id}`,amountXlm,successUrl:base+'/checkout/success',cancelUrl:base+'/checkout/cancel'});const collection=collections.recordCheckout(project.id,intent);return res.json({checkoutUrl:intent.checkoutUrl,paymentIntentId:collection.paymentIntentId,status:collection.status});}catch(e){console.error(e);return res.status(502).json({error:'Velo checkout creation failed'});}
 });
+// Operator re-check for a missed or unreachable webhook. Same retrieve-based path as the webhook; only intents this server created.
+app.post('/api/collections/:id/reconcile',auth,async(req,res)=>{
+ if(!collections.get(req.params.id))return res.status(404).json({error:'Not found'});
+ try{const collection=collections.reconcile(await retrievePaymentIntent(req.params.id));return res.json({collection});}
+ catch(e){console.error('Velo intent retrieval failed',e);return res.status(502).json({error:'Velo retrieval failed; status unchanged'});}
+});
 const port=Number(process.env.PORT??4000);app.listen(port,()=>console.log(`Snapp server: http://localhost:${port} (Testnet only)`));
