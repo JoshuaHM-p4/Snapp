@@ -10,7 +10,7 @@ From verified deliverables to streamlined payouts. One platform for teams, clien
 
 **Live website:** https://snapp-prodigitality.vercel.app (API: https://snapp-server.onrender.com/api/health)  
 **Demo video (2 min):** `TBD`  
-**Pitch deck:** `TBD`  
+**Pitch deck:** [deck/Snapp-Hackathon-Deck.pdf](deck/Snapp-Hackathon-Deck.pdf) (PPTX source: [deck/Snapp-Hackathon-Deck.pptx](deck/Snapp-Hackathon-Deck.pptx); public share link `TBD`)  
 **Team:** [JCarloZ24 (JC)](https://github.com/JCarloZ24) (UI/UX + Frontend), [Stobeeney](https://github.com/Stobeeney) (API Integration), [aidantiu](https://github.com/aidantiu) (Integration + Deployment), [JoshuaHM-p4](https://github.com/JoshuaHM-p4) (Founder/Fullstack + Noir Setup, Development & Testing). **Discord handles:** TBD (do not guess).
 
 ## Problem
@@ -164,6 +164,9 @@ scripts/              Local smoke check
 
 ## Screenshots
 **TBD:** owner cutoff review, employee calculation/discrepancy view, exact-run approval, per-recipient status, separate Velo collection, and genuine Noir authorization/claim proof. These are target screenshots, not claims that the screens exist. Do not use fake receipts.
+
+## Pitch deck
+11 slides for the Velo x Noir Agentic Payment Hackathon, built from `deck/build.js` (`cd deck && npm install && node build.js`; needs Python 3 with Pillow for the tilted screenshot frames). Screenshot and logo slots still to fill are listed in [docs/DECK_ASSETS_NEEDED.md](docs/DECK_ASSETS_NEEDED.md); the plan is in [docs/PITCH_DECK_PLAN.md](docs/PITCH_DECK_PLAN.md).
 
 ## What's next
 Build the Proyekto-linked cutoff/review model, versioned client evaluations, private employee statements and immutable owner approval first. Add authenticated, durable per-item execution and reconciliation before exposing money-moving controls. Demonstrate owner-approved Testnet execution and merchant claim through Noir; demonstrate Velo collection separately, not as automatic payroll funding.
