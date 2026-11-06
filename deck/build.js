@@ -296,8 +296,7 @@ function hair(slide, x1, y1, x2, y2, color = C.ink600, opts = {}) {
     const cy = 4.35;
     // Proyekto placeholder tile
     tile(s, M, cy - 0.9, 2.5, 1.8);
-    s.addText("PROYEKTO", { x: M, y: cy - 0.25, w: 2.5, h: 0.4, fontFace: MONO, bold: true, fontSize: 16, charSpacing: 3, color: C.ink400, align: "center", margin: 0 });
-    s.addText("logo placeholder", { x: M, y: cy + 0.15, w: 2.5, h: 0.3, fontFace: MONO, fontSize: 11, color: C.ink500, align: "center", margin: 0 });
+    s.addImage({ path: path.join(LOGOS, "proyekto-wordmark.png"), x: M + 0.2, y: cy - 0.26, w: 2.1, h: 2.1 * 340 / 1392 });
     hair(s, M + 2.5, cy, 4.15, cy, C.ink500, { dash: "dash", arrow: "triangle" });
     s.addText("PENDING", { x: M + 2.45, y: cy - 0.5, w: 1.0, h: 0.3, fontFace: MONO, bold: true, fontSize: 11, color: C.amber, align: "center", margin: 0 });
     // Snapp tile
