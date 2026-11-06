@@ -78,7 +78,7 @@ Existing server adapter usage (not a live compatibility validation):
 - `new Velo({apiKey, environment:'testnet'})` on server only.
 - `velo.checkout.sessions.create({amount:'2.5',asset:'native',description,successUrl,cancelUrl})`.
 - `velo.paymentIntents.retrieve(paymentIntentId)` for observed final state; durable server reconciliation is not implemented.
-- `Velo.webhooks.verify({payload: rawBody.toString(), signature, secret})` before processing. The handler then dedupes on `event.id` in SQLite and sets collection status only from `paymentIntents.retrieve`; terminal statuses never regress. This is a client-collection record, not invoice settlement, Noir funding or employee pay.
+- `Velo.webhooks.verify({payload: rawBody.toString(), signature, secret})` before processing. Known upstream issue: both `0.1.0-alpha.4` and `1.0.0` parse the body only after the HMAC check and require every `project` field to be a string, which Velo's live deliveries do not satisfy (`Invalid webhook event: project fields must be strings`), so a genuine signed event is thrown. For that shape-only failure the server re-verifies the same HMAC scheme with a constant-time compare and accepts a minimal `{id,type,paymentIntent.id/txHash}` event; signature failures are rethrown unchanged. Worth reporting to Velo. The handler then dedupes on `event.id` in SQLite and sets collection status only from `paymentIntents.retrieve`; terminal statuses never regress. This is a client-collection record, not invoice settlement, Noir funding or employee pay.
 
 This optional collection path is separate from employee payout and Noir escrow funding. PHP invoice amounts do not establish Testnet asset equivalence. Do not mark paid from a redirect or invent a Velo-to-bank/escrow funding bridge.
 
