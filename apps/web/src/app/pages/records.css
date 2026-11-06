@@ -357,19 +357,19 @@
   }
   .rc-split,
   .rc-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 640px) {
   .rc-stages {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .rc-stages li + li {
     border-left: 0;
     border-top: 1px solid var(--border);
   }
   .rc-milestone-body {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

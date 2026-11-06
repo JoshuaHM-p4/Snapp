@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { EyeOff, History, MessageCircleWarning, Printer, Send } from "lucide-react";
 import { SnappTextField } from "../../components/ui/SnappControls";
+import { DataTip, HoursBars } from "../../components/ui/ReportParts";
 import { validateText, type TextRules } from "../../components/ui/validation";
 import {
   cutoff,
@@ -93,6 +94,57 @@ export default function StatementPage() {
               ? `${formatHours(approvedTotal)} × ${formatPhp(me.agreement.rate)} = ${formatPhp(base)}`
               : `Fixed compensation ${formatPhp(base)}`}
           </p>
+        </div>
+      </section>
+
+      <section className="s-section" aria-labelledby="st-report">
+        <div className="s-section-head">
+          <h2 id="st-report">At a glance</h2>
+          <p className="s-note">Hover or focus a figure to see how it is made.</p>
+        </div>
+        <div className="s-panel st-report">
+          <dl className="st-scorecards">
+            <div>
+              <dt>Submitted</dt>
+              <dd>
+                <DataTip label="Hours you submitted for this cutoff, before the owner's review.">
+                  {formatHours(submittedTotal)}
+                </DataTip>
+              </dd>
+            </div>
+            <div>
+              <dt>Approved</dt>
+              <dd>
+                <DataTip label="Hours the owner approved. Corrections keep your original entry and show a reason.">
+                  {formatHours(approvedTotal)}
+                </DataTip>
+              </dd>
+            </div>
+            <div>
+              <dt>Expected pay</dt>
+              <dd>
+                <DataTip
+                  label={
+                    me.agreement.kind === "hourly"
+                      ? `${formatHours(approvedTotal)} × ${formatPhp(me.agreement.rate)} per hour. This explains the amount; it is not proof of transfer.`
+                      : "Fixed compensation for this cutoff. This explains the amount; it is not proof of transfer."
+                  }
+                >
+                  {formatPhp(expected)}
+                </DataTip>
+              </dd>
+            </div>
+          </dl>
+          <HoursBars
+            rows={rows.map(({ entry, approved }) => ({
+              label: `${entry.project} · ${entry.task}`,
+              submitted: entry.submitted,
+              approved,
+            }))}
+            scale={Math.max(1, ...rows.map((r) => r.entry.submitted))}
+            format={formatHours}
+          />
+          <p className="s-note">Bars share one scale starting at zero. Light = submitted, solid = approved.</p>
         </div>
       </section>
 

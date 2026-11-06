@@ -1,4 +1,5 @@
 import { ReportChartGallery } from "./ReportChartGallery";
+import { DataTip } from "../components/ui/ReportParts";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
   ArrowDown,
@@ -96,36 +97,6 @@ const initialRange = {
   start: parseDate("2026-11-01"),
   end: parseDate("2026-11-15"),
 };
-function DataTip({ label, children }: { label: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
-  const id = useId();
-  return (
-    <span
-      className="lib-data-tip"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") setOpen(false);
-      }}
-    >
-      <button
-        type="button"
-        className="lib-data-target"
-        aria-describedby={open ? id : undefined}
-        onClick={() => setOpen(true)}
-      >
-        {children}
-      </button>
-      {open && (
-        <span id={id} className="lib-data-tooltip" role="tooltip">
-          {label}
-        </span>
-      )}
-    </span>
-  );
-}
 function Sparkline({ values, label }: { values: number[]; label: string }) {
   const max = Math.max(1, ...values);
   const points = values

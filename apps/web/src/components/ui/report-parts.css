@@ -1,0 +1,75 @@
+.lib-data-tip {
+  position: relative;
+  display: inline-block;
+}
+.lib-data-target {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  cursor: help;
+  text-align: inherit;
+}
+.lib-data-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: min(260px, 75vw);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+.lib-project-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+.lib-project-bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 10px;
+  font-size: 14px;
+}
+.lib-project-bars strong {
+  font-family: "Geist Mono Variable", monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+.lib-project-track {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 8px;
+  background: var(--raised);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lib-project-track i {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transition: transform var(--dur-settle) var(--ease-standard);
+}
+.lib-project-track i.is-submitted {
+  background: color-mix(in srgb, var(--text) 28%, transparent);
+}
+.lib-project-track i.is-approved {
+  background: var(--text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lib-project-track i {
+    transition: none;
+  }
+}

@@ -346,6 +346,7 @@ html[data-snapp-theme="light"] .snapp-root {
 
 /* ---------- Tables ---------- */
 .s-table-wrap {
+  position: relative; /* keeps visually-hidden text inside the scroll box */
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }

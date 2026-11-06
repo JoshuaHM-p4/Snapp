@@ -149,14 +149,14 @@
 }
 @media (max-width: 760px) {
   .rr-totals {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .rr-counts {
     justify-content: flex-start;
   }
   .rr-list .rr-item,
   .rr-list .rr-item.is-unconfirmed {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "who"
       "amount"

@@ -121,3 +121,41 @@
     break-inside: avoid;
   }
 }
+
+.st-report {
+  display: grid;
+  gap: 24px;
+}
+.st-scorecards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.st-scorecards dt {
+  font-size: 14px;
+  color: var(--muted);
+}
+.st-scorecards dd {
+  margin: 8px 0 0;
+  font-family: "Geist Mono Variable", monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+@media (max-width: 520px) {
+  .st-scorecards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .st-scorecards > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .st-scorecards dd {
+    margin: 0;
+  }
+}
