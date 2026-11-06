@@ -11,3 +11,9 @@ coverage/
 .vite/
 .vercel
 .env*
+
+# Role key notes; never commit
+three-roles.md
+*-roles.md
+*secret*
+*secrets*
