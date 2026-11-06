@@ -1,6 +1,8 @@
-# Prodigitality visual design — intentionally on hold
+# Snapp visual design
 
-**Status:** Deferred by project owner (2026-11-05). No brand color, typography, logo, illustration, animation, screenshots or visual language should be treated as approved.
+**Status (2026-11-07):** Snapp brand v0.2 (`SNAPP_BRAND.md`: Ink/Volt/Ultraviolet palette, Sora/Geist/Geist Mono, Slip S logo, tempo-based motion) is **adopted in the web product** at the UI/UX owner's direction (JC), for the hackathon submission. Final Prodigitality company approval is still pending; everything lives in tokens (`apps/web/src/theme/tokens.ts`) and the `SnappLogo` component so a change stays cheap.
+
+Previous status (2026-11-05): deferred by project owner. Neutral grayscale scaffold, now replaced.
 
 **Product name:** Snapp  
 **Subtitle:** Agentic Work Verification & Payment Orchestration
@@ -23,8 +25,11 @@ The product name, subtitle, tagline and positioning do not approve a logo, palet
 4. Create responsive wireframes for the pending cutoff preparation/review, employee statement, exact-run approval, recipient reconciliation, client evaluation and separate Testnet/settings views described below.
 5. Approval gate: founder confirms screenshots and mobile behavior.
 
-## Temporary implementation
-The scaffold uses **neutral grayscale UI only**, plainly labeled as a demo. Do not interpret this as final Prodigitality style. Prioritize functional layout, readable data, keyboard accessibility and loading/error states until a visual direction is approved.
+## Current implementation
+- Landing page at `/` (Ink, forced dark): hero with a hold-to-snap sample run, the four stages (01/ Prepare, 02/ Review, 03/ Snap, 04/ Settle), the "two hands" colour rule, employee traceability, real recorded Testnet proof, honest scope, team.
+- Workspace under `/app/*` (Ink or Paper, viewer's choice): overview, cutoff review + snap approval, recipient results, payment agent (from the recorded evidence snapshot), employee statement, projects, invoices & Velo collections, developers, Testnet proof, settings. Old scaffold URLs redirect.
+- Shared primitives: `apps/web/src/app/ui.tsx` (status chips per the brand status vocabulary, `Php` amounts, `ProofLink`, `StageIndex`, `TestnetBadge`, `ApiState`), `HoldToSnap.tsx`, `money.ts` (integer centavos/stroops), `styles/base.css`.
+- All workflow screens use clearly labelled fictional sample data; nothing in the browser can move funds.
 
 ## Functional wireframes — target only, all pending
 These are layout requirements, not implemented pages or approved visual designs. Current dashboard/project previews remain scaffold previews. Snapp complements Proyekto's existing PM and invoicing; linking/importing references is not implemented or verified.

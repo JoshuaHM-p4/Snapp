@@ -1,0 +1,145 @@
+.s-hold-wrap {
+  display: inline-flex;
+}
+.s-hold {
+  position: relative;
+  gap: 12px;
+  padding: 0 22px 0 14px;
+  min-height: 52px;
+  font-size: 16px;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  transition:
+    transform var(--dur-beat) var(--ease-press),
+    background-color var(--dur-snap) var(--ease-standard);
+}
+.s-hold[data-holding="true"] {
+  transform: scale(0.97);
+  transition: transform var(--dur-hold) var(--ease-standard);
+}
+.s-hold[aria-disabled="true"] {
+  cursor: default;
+}
+.s-hold[aria-disabled="true"]:active {
+  transform: none;
+}
+.s-hold[data-approved="true"] {
+  background: var(--human);
+}
+.s-hold-wrap--lg .s-hold {
+  min-height: 72px;
+  padding: 0 32px 0 18px;
+  font-size: 18px;
+  border-radius: 12px;
+  gap: 16px;
+}
+.s-hold-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 36px;
+}
+.s-hold-wrap--lg .s-hold-mark {
+  width: 36px;
+  height: 48px;
+}
+.s-hold-mark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: var(--color-ink-950);
+  stroke-linecap: butt;
+}
+.s-hold-mark .track {
+  opacity: 0.18;
+}
+.s-hold-mark .prep {
+  stroke-dasharray: 43;
+  stroke-dashoffset: 43;
+  transition: stroke-dashoffset var(--dur-tick) var(--ease-press);
+}
+.s-hold[data-holding="true"] .prep {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--dur-hold) linear;
+}
+.s-hold .release {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--dur-tick) var(--ease-press),
+    transform var(--dur-tick) var(--ease-press);
+}
+.s-hold[data-approved="true"] .prep {
+  stroke-dashoffset: 0;
+}
+.s-hold[data-approved="true"] .release {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-snap) var(--ease-snap),
+    transform var(--dur-snap) var(--ease-snap);
+}
+.s-hold-echo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.s-hold-echo .s-echo {
+  border-color: var(--color-ink-950);
+}
+.s-hold-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Native confirmation dialog (keyboard and assistive-tech path). */
+.s-dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+}
+.s-dialog::backdrop {
+  background: rgb(10 10 15 / 0.7);
+}
+.s-dialog[open] {
+  animation: s-dialog-in var(--dur-beat) var(--ease-snap);
+}
+@keyframes s-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+.s-dialog-body {
+  display: grid;
+  gap: 20px;
+  padding: 28px;
+}
+.s-dialog-body h2 {
+  font-size: 22px;
+  line-height: 28px;
+}
+.s-dialog-summary {
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+}
+.s-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .s-hold[data-holding="true"] {
+    transform: none;
+  }
+  .s-hold-echo {
+    display: none;
+  }
+}

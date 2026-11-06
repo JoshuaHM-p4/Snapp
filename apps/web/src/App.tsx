@@ -1,17 +1,78 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, NavLink, Route, Routes, useParams, useLocation } from 'react-router-dom';
-import type { Project, AgentDecision } from '@agentpay/shared';
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { SnappThemeProvider } from "./theme/ThemeProvider";
+import { SnappLoading } from "./components/ui/SnappLoading";
+import { AppShell } from "./app/AppShell";
+import Landing from "./site/Landing";
+import { CheckoutResult, NotFound } from "./site/StatusPages";
+import Overview from "./app/pages/Overview";
+import Projects from "./app/pages/Projects";
+import ProjectDetail from "./app/pages/ProjectDetail";
+import Invoices from "./app/pages/Invoices";
+import Developers from "./app/pages/Developers";
+import CutoffReview from "./app/pages/CutoffReview";
+import Statement from "./app/pages/Statement";
+import Results from "./app/pages/Results";
+import Proof from "./app/pages/Proof";
+import Agent from "./app/pages/Agent";
+import SettingsPage from "./app/pages/Settings";
+
 // Dev-only tools; import.meta.env.DEV is false in production builds, so these are dropped.
-const HoldPlayground = import.meta.env.DEV ? lazy(() => import('./dev/HoldPlayground')) : null;
-const DesignLibrary = import.meta.env.DEV ? lazy(() => import('./dev/DesignLibrary')) : null;
-const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
-const nav = [['/','Overview'],['/projects','Projects'],['/invoices','Invoices'],['/developers','Developers'],['/agent','Payment agent'],['/settings','Settings']];
-const fmtPhp = (n:number) => new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP',maximumFractionDigits:0}).format(n);
-function useProjects(){ const [projects,setProjects]=useState<Project[]>([]); const [error,setError]=useState('');useEffect(()=>{fetch(apiBase+'/api/projects').then(r=>{if(!r.ok) throw Error('Server returned '+r.status);return r.json()}).then(r=>setProjects(r.projects)).catch(e=>setError(String(e)))},[]);return {projects,error}; }
-function Overview(){const {projects,error}=useProjects();return <div className="stack"><div><div className="eyebrow">Agency workspace / demo</div><h1>Project payment overview</h1><p className="muted">From verified deliverables to streamlined payouts. One platform for teams, clients, and business owners.</p></div>{error&&<div className="notice">Backend unavailable: {error}. Run <span className="code">npm run dev</span>.</div>}<div className="cards"><div className="card"><div className="muted">Projects</div><div className="value">{projects.length}</div></div><div className="card"><div className="muted">Contracted PHP (sample)</div><div className="value">{fmtPhp(projects.reduce((x,p)=>x+p.clientAmountPhp,0))}</div></div><div className="card"><div className="muted">Developer commitments</div><div className="value">{fmtPhp(projects.reduce((x,p)=>x+p.developerBudgetPhp,0))}</div></div></div><h2>Active projects</h2>{projects.map(p=><div className="card line" key={p.id}><div><strong>{p.title}</strong><p className="muted">{p.clientName} · {p.status}</p></div><Link className="btn" to={'/projects/'+p.id}>Open project</Link></div>)}<div className="notice">Testnet XLM transactions are separate from PHP accounting; amounts shown are planning figures, not real payouts.</div></div>}
-function Projects(){const {projects}=useProjects();return <div><div className="eyebrow">Delivery</div><h1>Projects</h1><div className="stack">{projects.map(p=><div key={p.id} className="card"><div className="line"><div><strong>{p.title}</strong><p className="muted">{p.clientName} · {p.milestones.length} milestones</p></div><Link className="btn" to={'/projects/'+p.id}>Details</Link></div></div>)}</div></div>}
-function ProjectDetails(){const {id}=useParams();const {projects}=useProjects();const p=projects.find(p=>p.id===id);const [decisions,setDecisions]=useState<AgentDecision[]>([]);const [busy,setBusy]=useState(false);const [error,setError]=useState('');if(!p)return <div><h1>Loading project...</h1><p><Link to="/projects">Back to projects</Link></p></div>;return <div className="stack"><div><Link to="/projects">← Projects</Link><h1>{p.title}</h1><p className="muted">{p.clientName} · Status: {p.status}</p></div><div className="cards"><div className="card">Client contract<div className="value">{fmtPhp(p.clientAmountPhp)}</div></div><div className="card">Developer allocation<div className="value">{fmtPhp(p.developerBudgetPhp)}</div></div><div className="card">Testnet note<div className="value" style={{fontSize:15}}>XLM only; not PHP settlement</div></div></div><div className="card"><div className="line"><h2>Milestones</h2><button className="btn" disabled={busy} onClick={async()=>{setBusy(true);setError('');try{const r=await fetch(apiBase+'/api/agent/preview/'+p.id);if(!r.ok)throw Error('Preview failed');setDecisions((await r.json()).decisions)}catch(e){setError(String(e))}finally{setBusy(false)}}}>Run agent decision preview</button></div>{p.milestones.map(m=><div className="list-item" key={m.id}><div><strong>{m.title}</strong><p className="muted">{m.assignee} · {m.status} · Due {m.dueDate} · testnet amount {m.testnetAmountXlm} XLM</p></div><span className="pill">{decisions.find(d=>d.milestoneId===m.id)?.action||'Awaiting review'}</span></div>)}{error&&<p>{error}</p>}<p className="muted">This preview never sends payments. Controlled Noir Testnet execution uses separate local tooling with exact owner approval; it is not a web payroll workflow.</p></div></div>}
-function Invoices(){const {projects}=useProjects();return <div className="stack"><div><div className="eyebrow">Client billing</div><h1>Invoices</h1><p className="muted">Invoices are snapshots; the checkout implementation is server-only and requires a Velo Testnet key.</p></div>{projects.map(p=><div className="card line" key={p.id}><div><strong>INV-{p.id.toUpperCase()}</strong><p className="muted">{p.clientName} · {p.title}</p></div><strong>{fmtPhp(p.clientAmountPhp)}</strong></div>)}<div className="notice">To make a checkout, use the protected API documented in docs/API.md. A Velo Testnet XLM checkout is not a PHP invoice payment.</div></div>}
-function Developers(){const {projects}=useProjects();return <div className="stack"><div><div className="eyebrow">Compensation transparency</div><h1>Developer agreements</h1></div>{projects.flatMap(p=>p.milestones.map(m=><div className="card line" key={m.id}><div><strong>{m.assignee}</strong><p className="muted">{m.title} · {p.title} · {m.dueDate}</p></div><span className="pill">{m.status}</span></div>))}<p className="notice">Production access control must limit developers to their own agreements. The demo contains fictional sample data only.</p></div>}
-function StaticPage({title,description}:{title:string,description:string}){return <div className="stack"><div className="eyebrow">Snapp</div><h1>{title}</h1><p className="muted">{description}</p><div className="notice">This starter page is intentionally a placeholder. See docs/PAGES.md and docs/UI.md.</div></div>}
-export default function App(){const location=useLocation(); if(DesignLibrary && location.pathname==='/dev/library') return <Suspense fallback={<p>Loading design library?</p>}><DesignLibrary/></Suspense>; return <div className="shell"><aside className="sidebar"><div className="brand">Snapp</div><p className="muted">Agentic Work Verification &amp; Payment Orchestration</p><p className="muted">Pay fast, in a snap.</p><p className="muted">Prodigitality · Testnet MVP</p><nav>{nav.map(([url,label])=><NavLink end={url==='/'} to={url} key={url} className={({isActive})=>isActive?'active':''}>{label}</NavLink>)}</nav><p className="muted" style={{fontSize:12,marginTop:40}}>Preview environment — no real funds</p></aside><main className="content"><Routes><Route path="/" element={<Overview/>}/><Route path="/projects" element={<Projects/>}/><Route path="/projects/:id" element={<ProjectDetails/>}/><Route path="/invoices" element={<Invoices/>}/><Route path="/developers" element={<Developers/>}/><Route path="/agent" element={<StaticPage title="Payment agent" description="Evidence review, proposed payees and amounts, authorized payments, and Testnet transaction audit."/>}/><Route path="/settings" element={<StaticPage title="Settings" description="Wallet, spending policy, testnet integration checks, and company roles."/>}/><Route path="/checkout/success" element={<StaticPage title="Checkout received" description="Payment is not final until a verified Velo webhook and ledger confirmation arrive."/>}/><Route path="/checkout/cancel" element={<StaticPage title="Checkout canceled" description="No funds are considered received."/>}/>{HoldPlayground&&<Route path="/dev/hold" element={<Suspense fallback={null}><HoldPlayground/></Suspense>}/>}<Route path="*" element={<StaticPage title="Not found" description="This page does not exist."/>}/></Routes></main></div>}
+const HoldPlayground = import.meta.env.DEV ? lazy(() => import("./dev/HoldPlayground")) : null;
+const DesignLibrary = import.meta.env.DEV ? lazy(() => import("./dev/DesignLibrary")) : null;
+
+function LegacyProject() {
+  const { id } = useParams();
+  return <Navigate to={`/app/projects/${id ?? ""}`} replace />;
+}
+
+export default function App() {
+  const location = useLocation();
+  if (DesignLibrary && location.pathname === "/dev/library")
+    return (
+      <Suspense fallback={null}>
+        <DesignLibrary />
+      </Suspense>
+    );
+  return (
+    <SnappThemeProvider forceTheme={location.pathname === "/" ? "dark" : undefined}>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/app" element={<AppShell />}>
+          <Route index element={<Overview />} />
+          <Route path="cutoffs" element={<CutoffReview />} />
+          <Route path="results" element={<Results />} />
+          <Route path="agent" element={<Agent />} />
+          <Route path="statement" element={<Statement />} />
+          <Route path="projects" element={<Projects />} />
+          <Route path="projects/:id" element={<ProjectDetail />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="developers" element={<Developers />} />
+          <Route path="proof" element={<Proof />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<NotFound inApp />} />
+        </Route>
+        {/* Earlier scaffold URLs keep working. */}
+        <Route path="/projects" element={<Navigate to="/app/projects" replace />} />
+        <Route path="/projects/:id" element={<LegacyProject />} />
+        <Route path="/invoices" element={<Navigate to="/app/invoices" replace />} />
+        <Route path="/developers" element={<Navigate to="/app/developers" replace />} />
+        <Route path="/agent" element={<Navigate to="/app/agent" replace />} />
+        <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
+        <Route path="/checkout/success" element={<CheckoutResult outcome="success" />} />
+        <Route path="/checkout/cancel" element={<CheckoutResult outcome="cancel" />} />
+        {HoldPlayground && (
+          <Route
+            path="/dev/hold"
+            element={
+              <Suspense fallback={<SnappLoading label="Loading playground" />}>
+                <HoldPlayground />
+              </Suspense>
+            }
+          />
+        )}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </SnappThemeProvider>
+  );
+}

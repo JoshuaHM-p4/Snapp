@@ -1,0 +1,123 @@
+.st-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+}
+.st-who {
+  display: grid;
+  gap: 4px;
+}
+.st-name {
+  font-family: "Sora Variable", sans-serif;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.st-expected {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+  text-align: right;
+}
+.st-calc {
+  font-size: 14px;
+  color: var(--muted);
+}
+.st-table s {
+  color: var(--muted);
+  text-decoration-thickness: 1px;
+}
+.st-fix {
+  display: inline-flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.st-fix svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--muted);
+}
+.st-lines {
+  display: grid;
+}
+.st-lines > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.st-lines > div:first-child {
+  padding-top: 0;
+}
+.st-lines dt {
+  color: var(--muted);
+}
+.st-lines dd {
+  margin: 0;
+  display: grid;
+  justify-items: end;
+}
+.st-lines small {
+  font-size: 13px;
+  color: var(--muted);
+}
+.st-line-total {
+  border-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  font-weight: 600;
+}
+.st-line-total dt {
+  color: var(--text);
+}
+.st-states {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.st-state {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.st-state-value {
+  min-height: 24px;
+}
+.st-dispute-form {
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+}
+.st-dispute-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+@media (max-width: 560px) {
+  .st-expected {
+    justify-items: start;
+    text-align: left;
+  }
+}
+@media print {
+  .s-topbar,
+  .s-sidenav,
+  .s-page-actions,
+  .st-dispute,
+  .snapp-toasts {
+    display: none !important;
+  }
+  .s-app {
+    display: block;
+  }
+  .st-page .s-panel {
+    box-shadow: none;
+    border: 1px solid var(--border);
+    break-inside: avoid;
+  }
+}
