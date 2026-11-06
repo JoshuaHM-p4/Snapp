@@ -8,7 +8,7 @@ From verified deliverables to streamlined payouts. One platform for teams, clien
 
 **Repository:** [JoshuaHM-p4/Snapp](https://github.com/JoshuaHM-p4/Snapp)
 
-**Live website:** `TBD — public deployment required`  
+**Live website:** https://snapp-prodigitality.vercel.app (API: https://snapp-server.onrender.com/api/health)  
 **Demo video (2 min):** `TBD`  
 **Pitch deck:** `TBD`  
 **Team:** [JCarloZ24 (JC)](https://github.com/JCarloZ24) (UI/UX + Frontend), [Stobeeney](https://github.com/Stobeeney) (API Integration), [aidantiu](https://github.com/aidantiu) (Integration + Deployment), [JoshuaHM-p4](https://github.com/JoshuaHM-p4) (Founder/Fullstack + Noir Setup, Development & Testing). **Discord handles:** TBD (do not guess).
