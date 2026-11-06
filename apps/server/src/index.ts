@@ -9,11 +9,14 @@ const collections=new CollectionStore();
 const app=express();
 app.disable('x-powered-by');
 app.use(cors({origin:process.env.WEB_ORIGIN??'http://localhost:5173'}));
-// Raw webhook route MUST precede express.json(); never trust an unsigned webhook.
-app.post('/api/webhooks/velo',express.raw({type:'application/json',limit:'128kb'}),async(req,res)=>{
+// Raw webhook route MUST precede express.json(); never trust an unsigned webhook. The HMAC covers the exact
+// bytes, so the body is captured raw whatever content type the sender declares.
+let lastWebhookRejection:Record<string,unknown>|null=null;
+app.post('/api/webhooks/velo',express.raw({type:()=>true,limit:'128kb'}),async(req,res)=>{
  let event;
- try{const signature=req.header('x-velo-signature');if(!signature||!Buffer.isBuffer(req.body))return res.status(400).json({error:'Invalid webhook payload'});event=await verifyVeloWebhook(req.body,signature);}
- catch(e){console.error('Rejected Velo webhook',e);return res.status(400).json({error:'Invalid webhook signature or configuration'});}
+ const reject=(reason:string)=>{lastWebhookRejection={at:new Date().toISOString(),reason,contentType:req.header('content-type')??null,bodyIsBuffer:Buffer.isBuffer(req.body),bodyBytes:Buffer.isBuffer(req.body)?req.body.length:null,signatureHeaderPresent:Boolean(req.header('x-velo-signature'))};return res.status(400).json({error:'Invalid webhook signature or payload'});};
+ try{const signature=req.header('x-velo-signature');if(!signature)return reject('missing_signature_header');if(!Buffer.isBuffer(req.body))return reject('body_not_raw');event=await verifyVeloWebhook(req.body,signature);}
+ catch(e){console.error('Rejected Velo webhook',e);return reject(`verify: ${e instanceof Error?e.message:'unknown'}`);}
  // Dedupe on event.id before any side effect; Velo retries deliveries.
  if(!collections.recordEvent(event))return res.status(200).json({received:true,duplicate:true});
  if(!('paymentIntent' in event))return res.status(200).json({received:true,ignored:event.type});
@@ -25,6 +28,8 @@ app.post('/api/webhooks/velo',express.raw({type:'application/json',limit:'128kb'
 });
 app.use(express.json({limit:'64kb'}));
 const auth=(req:express.Request,res:express.Response,next:express.NextFunction)=>{const expected=process.env.ADMIN_API_TOKEN;if(!expected||req.header('authorization')!==`Bearer ${expected}`)return res.status(401).json({error:'Unauthorized'});next();};
+// Why the last Velo delivery was rejected (reason, content type, body size); never the body or signature. Admin only.
+app.get('/api/webhooks/velo/diagnostics',auth,(_req,res)=>res.json({lastRejection:lastWebhookRejection}));
 app.get('/api/health',(_req,res)=>res.json({ok:true,network:'testnet',demoMode:process.env.DEMO_MODE!=='false'}));
 app.get('/api/projects',(_req,res)=>res.json({projects:getProjects()}));
 app.get('/api/agent/preview/:projectId',(req,res)=>{const project=getProjects().find(p=>p.id===req.params.projectId);if(!project)return res.status(404).json({error:'Not found'});return res.json({mode:'dry-run',decisions:project.milestones.map(evaluateMilestone)});});
