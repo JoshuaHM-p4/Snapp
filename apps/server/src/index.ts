@@ -19,11 +19,11 @@ app.post('/api/webhooks/velo',express.raw({type:()=>true,limit:'128kb'}),async(r
  catch(e){console.error('Rejected Velo webhook',e);return reject(`verify: ${e instanceof Error?e.message:'unknown'}`);}
  // Dedupe on event.id before any side effect; Velo retries deliveries.
  if(!collections.recordEvent(event))return res.status(200).json({received:true,duplicate:true});
- if(!('paymentIntent' in event))return res.status(200).json({received:true,ignored:event.type});
+ if(!event.paymentIntent)return res.status(200).json({received:true,ignored:event.type});
  // The signed body only tells us which intent changed. Status comes from Velo's API, never from the body or a redirect.
  try{const intent=await retrievePaymentIntent(event.paymentIntent.id);const collection=collections.reconcile(intent,event.paymentIntent.txHash);
   if(!collection)console.warn('Velo event for an intent this server did not create',event.paymentIntent.id);
-  return res.status(200).json({received:true,status:collection?.status??'unknown_intent'});
+  return res.status(200).json({received:true,status:collection?.status??'unknown_intent',...(event.lenient?{parsed:'lenient'}:{})});
  }catch(e){console.error('Velo intent retrieval failed; event recorded, status unchanged',e);return res.status(200).json({received:true,status:'retrieval_failed'});}
 });
 app.use(express.json({limit:'64kb'}));

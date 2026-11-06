@@ -1,7 +1,8 @@
 import {DatabaseSync} from 'node:sqlite';
 import {mkdirSync} from 'node:fs';
 import path from 'node:path';
-import type {PaymentIntent, PaymentIntentStatus, WebhookEvent} from '@carts1024/velo-sdk';
+import type {PaymentIntent, PaymentIntentStatus} from '@carts1024/velo-sdk';
+import type {VerifiedVeloEvent} from './payments.js';
 
 /** A client collection attempt through Velo. Separate from employee pay, Noir escrow and PHP invoice accounting. */
 export interface Collection {
@@ -25,8 +26,8 @@ export class CollectionStore {
     return this.get(intent.paymentIntentId??intent.id)!;
   }
   /** True the first time an event id is seen. Velo retries deliveries; a replay must not re-run reconciliation. */
-  recordEvent(event:WebhookEvent):boolean {
-    const intentId='paymentIntent' in event?event.paymentIntent.id:null;
+  recordEvent(event:VerifiedVeloEvent):boolean {
+    const intentId=event.paymentIntent?.id??null;
     const result=this.db.prepare('INSERT OR IGNORE INTO velo_events VALUES(?,?,?,?)').run(event.id,event.type,intentId,new Date().toISOString());
     return result.changes===1;
   }
