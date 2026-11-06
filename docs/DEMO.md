@@ -86,7 +86,7 @@ Persistent alternative: Render → `snapp-server` → **Disks** → Add disk, mo
 export ID=demo-<mmdd> MANIFEST="$PWD/.data/$ID.manifest.json" DIGEST=<digest>
 export ALLOWED_MERCHANT_ADDRESSES=<merchantPub> NOIR_TESTNET_CONTRACTS_CONFIRMED=true
 set -a; . ./.env.local; set +a                                  # AI_GATEWAY_API_KEY for Jev
-read -r -s -p 'Agent secret: ' NOIR_AGENT_SECRET; echo; export NOIR_AGENT_SECRET
+export NOIR_AGENT_SECRET=$(awk '$1=="agent"{print $3}' ~/.snapp-roles-<id>.txt)
 npm run noir -- assess    --manifest "$MANIFEST" --payout ".data/$ID.payout-revisions.json"   # DEFER
 npm run noir -- assess    --manifest "$MANIFEST" --payout ".data/$ID.payout-dispute.json"     # ESCALATE
 npm run noir -- assess    --manifest "$MANIFEST" --payout ".data/$ID.payout-accepted.json"    # EXECUTE
@@ -100,7 +100,7 @@ Merchant shell (1:25–1:40):
 ```bash
 export MANIFEST=... DIGEST=... ALLOWED_MERCHANT_ADDRESSES=<merchantPub> NOIR_TESTNET_CONTRACTS_CONFIRMED=true
 npm run noir -- check --manifest "$MANIFEST"                     # read pendingMerchantStroops
-read -r -s -p 'Merchant secret: ' NOIR_MERCHANT_SECRET; echo; export NOIR_MERCHANT_SECRET
+export NOIR_MERCHANT_SECRET=$(awk '$1=="merchant"{print $3}' ~/.snapp-roles-<id>.txt)
 npm run noir -- claim --manifest "$MANIFEST" --live --confirm "$DIGEST" --pending-stroops 15000000
 unset NOIR_MERCHANT_SECRET
 npm run noir -- reconcile --manifest "$MANIFEST"
@@ -111,7 +111,7 @@ npm run noir -- evidence --manifest "$MANIFEST" > "apps/web/public/evidence/$ID.
 
 - `assess` makes a real Jev call each time (~1 s, fractions of a cent). Run each once beforehand so you know the verdicts; they were `pending` 0.92 → DEFER and `escalate` 1.00 → ESCALATE on Nov 6.
 - `autopilot` refuses to run twice for the same manifest (`ALREADY_EXECUTED`). A retake needs a new `ID` and a new owner `approve` + `setup` round, or just show `evidence` for the earlier run.
-- A stray character in a pasted secret returns `INVALID_SECRET`; retype it.
+- `INVALID_SECRET` means the exported value is not a valid key; re-export it from the roles file with the `awk` line above rather than pasting.
 - Terminal font large; never show the role file or `.env` files on screen.
 - Keep the backup: Stellar Expert links for the Nov 6 run are in the README if the network is slow.
 
