@@ -2,7 +2,7 @@
 // Usage: node scripts/demo-files.mjs <id> <ownerPub> <agentPub> <merchantPub>
 // Public keys only. Secrets stay in the role shells. Prints the files written and nothing else.
 import {createHash} from 'node:crypto';
-import {mkdirSync, writeFileSync, chmodSync} from 'node:fs';
+import {mkdirSync, writeFileSync, chmodSync, existsSync} from 'node:fs';
 const [id, owner, agent, merchant] = process.argv.slice(2);
 if (!id || !owner || !agent || !merchant) { console.error('usage: node scripts/demo-files.mjs <id> <ownerPub> <agentPub> <merchantPub>'); process.exit(1); }
 for (const k of [owner, agent, merchant]) if (!/^G[A-Z2-7]{55}$/.test(k)) { console.error('not a Stellar public key:', k.slice(0, 6)); process.exit(1); }
@@ -19,6 +19,8 @@ const reviews = {
   revisions: {clientFeedback: 'Mostly good, but the header still overlaps the menu on tablets. Can you fix that before we sign off?', evidenceSummary: 'PR #1 merged; tablet layout issue reported after deployment.', revisionSummary: 'One open revision: tablet header overlap.'},
   dispute: {clientFeedback: 'This is not what we agreed. Two pages are missing and I was told the work was done. I am not approving this.', evidenceSummary: 'PR #1 marked passed by developer; client says pages missing.', revisionSummary: 'Client contests completion; contradiction with evidence.'},
 };
-const write = (name, data) => { const p = `.data/${name}`; writeFileSync(p, JSON.stringify(data, null, 2) + '\n'); chmodSync(p, 0o600); console.log(p); };
+// Never overwrite: the manifest carries a time-based expiry, so rewriting it would change the digest
+// the owner already signed. Delete the files by hand if you really want a new manifest.
+const write = (name, data) => { const p = `.data/${name}`; if (existsSync(p)) { console.log(`${p} (kept, already exists)`); return; } writeFileSync(p, JSON.stringify(data, null, 2) + '\n'); chmodSync(p, 0o600); console.log(p); };
 write(`${id}.manifest.json`, manifest);
 for (const [name, review] of Object.entries(reviews)) write(`${id}.payout-${name}.json`, {milestone, payoutDate: '2026-11-06T00:00:00Z', review});
