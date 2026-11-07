@@ -137,7 +137,9 @@ export function AppShell() {
           </div>
         </nav>
         <main id="app-main" className="s-main" tabIndex={-1}>
-          <Outlet />
+          <div key={location.pathname} className="s-view">
+            <Outlet />
+          </div>
         </main>
         <SnappToastRegion toasts={toasts.toasts} dismiss={toasts.dismiss} />
       </div>

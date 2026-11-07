@@ -11,7 +11,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DEMO_MODE
-        value: "true"            # set "false" only with real Velo keys for a controlled Testnet checkout
+        sync: false              # dashboard-managed: "true" for previews only, "false" (with real Velo keys) to allow checkout creation. A fixed value here would be re-applied on every deploy.
       - key: WEB_ORIGIN
         sync: false              # exact Vercel URL, e.g. https://snapp.vercel.app (CORS allow-origin)
       - key: PUBLIC_WEB_URL

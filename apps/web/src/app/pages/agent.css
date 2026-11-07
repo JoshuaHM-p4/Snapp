@@ -128,7 +128,7 @@
 .ag-step {
   position: relative;
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 20px minmax(0, 1fr);
   gap: 16px;
   padding-bottom: 24px;
 }
@@ -297,7 +297,7 @@
 }
 .ag-probs > div {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 72px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   font-size: 13px;
@@ -308,7 +308,7 @@
 .ag-probs dd {
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr 40px;
+  grid-template-columns: minmax(0, 1fr) 40px;
   align-items: center;
   gap: 10px;
   text-align: right;
@@ -348,7 +348,7 @@
 }
 @media (max-width: 1000px) {
   .ag-pipe {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .ag-pipe-arrow {
     right: auto;
