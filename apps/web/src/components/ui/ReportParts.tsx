@@ -213,7 +213,7 @@ export function ColumnChart({
     Math.max(0, ...points.map((p) => Math.max(p.value, p.ghost ?? 0))),
   );
   const slot = 56;
-  const left = 44;
+  const left = 64; // room for labels like "10.0 h"
   const width = Math.max(320, left + points.length * slot + 12);
   const base = 180;
   const h = 150;
@@ -230,7 +230,7 @@ export function ColumnChart({
         <svg
           className="rp-chart"
           viewBox={`0 0 ${width} 214`}
-          style={{ minWidth: Math.min(width, 520) }}
+          style={{ minWidth: Math.min(width, 520), maxWidth: Math.max(width, 640) }}
           role="group"
           aria-label={`${label}: ${points
             .map(
