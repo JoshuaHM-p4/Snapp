@@ -114,6 +114,18 @@ The second diagram is the target, not the current implementation. See [architect
 - Collections store: [collections.ts](apps/server/src/collections.ts). Checkout records the intent; webhooks are deduped on `event.id` and status is set only from `paymentIntents.retrieve`. `GET /api/collections` lists them. Verified with self-signed events and one real Velo Testnet collection: intent created by this server, paid on-chain ([tx fe057622…](https://stellar.expert/explorer/testnet/tx/fe05762287ed2aaf7b87cc42f2bbbe749a0e09d52ba28463f4d04bba82d44045)), `paid` confirmed from Velo's API. Live webhook delivery verified on the deployed server: a paid checkout was recorded `paid` with its `txHash` from Velo's signed event within seconds ([7b9f79c6…](https://stellar.expert/explorer/testnet/tx/7b9f79c659885f173d40f025fc9983daa63e507006929a662be3cc6821e70c07)). `POST /api/collections/:id/reconcile` (admin) re-checks a missed delivery.
 
 ## Testnet proof
+**Noir (agent payment), Stellar Testnet, Nov 7 2026 (demo run, fresh keys).** Owner setup via `scripts/demo-prep.sh`, then Snapp Autopilot decided EXECUTE (Jev `routine` P=1.00, concern 0.03) and signed the authorization with the agent key.
+
+| Step | Signer | Ledger | Transaction |
+|---|---|---|---|
+| registerDevice | owner | 5592780 | [76dc336b…cf66](https://stellar.expert/explorer/testnet/tx/76dc336b2bb8192cbf1b94143336d8aba338fc85770bf1a04806848a5035cf66) |
+| registerAgent (cap 2 XLM, native, expires 2026-11-20) | owner | 5592788 | [88832301…de95](https://stellar.expert/explorer/testnet/tx/88832301608d9d9c2c7a287d52e2f61ad87afdf25b67eaecb3a936254fbfde95) |
+| fundEscrow (5 XLM) | owner | 5592798 | [8f8e10e6…869d](https://stellar.expert/explorer/testnet/tx/8f8e10e69cc0543f259e78761604c3609c38c7d91b0c361524acc08c38eb869d) |
+| **authorize 1.5 XLM → merchant** (agent decision; submitted-proof link) | **agent** | 5593338 | [f8023afa…6a5c](https://stellar.expert/explorer/testnet/tx/f8023afae1854ea12ce744942e966a3177a07023cf0ac0b8f411296c86ca6a5c) |
+| claim | merchant | pending | not yet run |
+
+Roles: owner `GBLAMD36…PQKI`, agent `GD24CZ2Q…GFMC`, merchant `GBVAZVBQ…OIR3`. The same manifest also logged DEFER (Jev `pending` 0.89) for a revision request and ESCALATE (Jev `escalate` 1.00) for a dispute before the accepted item was executed.
+
 **Noir (agent payment), Stellar Testnet, Nov 6 2026.** One owner-approved 1.5 XLM item, decided and executed by Snapp Autopilot, collected by the merchant. Each transaction was confirmed by RPC and its contract event decoded and matched (device hash, merchant, amount) by `npm run noir -- reconcile`.
 
 | Step | Signer | Ledger | Transaction |
