@@ -138,12 +138,12 @@ export default function StatementPage() {
   const [submitted, setSubmitted] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const rows = me.entries.map((entry) => {
-    const fix = corrections[entry.id];
-    const approved = fix ? fix.approved : entry.submitted;
-    return { entry, fix, approved };
-  });
-  const approvedTotal = sum(rows.map((r) => r.approved));
+  // Whole-cutoff figures: what is actually paid.
+  const cutoffApproved = sum(
+    me.entries.map(
+      (entry) => corrections[entry.id]?.approved ?? entry.submitted,
+    ),
+  );
   // Day-by-day log. A correction comes off the day it names; the original entry stays visible.
   const days: DayRow[] = me.entries.flatMap((entry) => {
     const fix = corrections[entry.id];
@@ -186,14 +186,36 @@ export default function StatementPage() {
         const b = dayLabel(applied.end);
         return `${a === b ? a : `${a}–${b.replace(/^[A-Za-z]+ /, a.slice(0, 3) === b.slice(0, 3) ? "" : "$&")}`}, ${applied.end.slice(0, 4)}`;
       })();
-  const entryBars = rows.map(({ entry }) => {
+  // Per-entry figures inside the selected dates. Entries without a daily split count whole.
+  const rows = me.entries.map((entry) => {
+    const fix0 = corrections[entry.id];
+    if (!entry.days) {
+      return {
+        entry,
+        fix: fix0,
+        submitted: entry.submitted,
+        approved: fix0?.approved ?? entry.submitted,
+      };
+    }
     const mine = inRange.filter((d) => d.id.startsWith(`${entry.id}-`));
+    const fix =
+      fix0 &&
+      (!fix0.date || (fix0.date >= applied.start && fix0.date <= applied.end))
+        ? fix0
+        : undefined;
     return {
-      label: `${entry.project} · ${entry.task}`,
+      entry,
+      fix,
       submitted: sum(mine.map((d) => d.submitted)),
       approved: sum(mine.map((d) => d.approved)),
     };
   });
+  const approvedTotal = sum(rows.map((r) => r.approved));
+  const entryBars = rows.map((r) => ({
+    label: `${r.entry.project} · ${r.entry.task}`,
+    submitted: r.submitted,
+    approved: r.approved,
+  }));
   const byDay = [...new Set(inRange.map((d) => d.date))].sort().map((date) => {
     const on = inRange.filter((d) => d.date === date);
     const note = on.find((d) => d.note)?.note;
@@ -210,13 +232,18 @@ export default function StatementPage() {
     sub: { label: p.label, value: (runSub += p.ghost) },
     app: { label: p.label, value: (runApp += p.value) },
   }));
-  const submittedTotal = sum(rows.map((r) => r.entry.submitted));
+  const submittedTotal = sum(rows.map((r) => r.submitted));
   const adjustments = 0;
   const base =
     me.agreement.kind === "hourly"
       ? hourlyPay(approvedTotal, me.agreement.rate)
       : me.agreement.perCutoff;
   const expected = base + adjustments;
+  const cutoffExpected =
+    (me.agreement.kind === "hourly"
+      ? hourlyPay(cutoffApproved, me.agreement.rate)
+      : me.agreement.perCutoff) + adjustments;
+  const scope = isFull ? "this cutoff" : periodLabel;
 
   return (
     <div className="s-page st-page">
@@ -271,8 +298,8 @@ export default function StatementPage() {
         <p className="s-note" role="status">
           {byDay.length} {byDay.length === 1 ? "day" : "days"} worked ·{" "}
           {formatHours(rangeApproved)} approved of {formatHours(rangeSubmitted)}
-          . Reports below follow these dates; expected pay is always the whole
-          cutoff.
+          . Every figure below follows these dates, except the Payment section,
+          which is the whole cutoff.
         </p>
       </section>
 
@@ -294,7 +321,7 @@ export default function StatementPage() {
         </div>
         <div className="st-expected">
           <p id="st-expected" className="s-label">
-            Expected for this cutoff
+            Expected for {scope}
           </p>
           <Php centavos={expected} size="xl" />
           <p className="st-calc s-mono" aria-label="Calculation">
@@ -349,7 +376,7 @@ export default function StatementPage() {
               )}
             </div>
             <div>
-              <dt>Expected pay · whole cutoff</dt>
+              <dt>Expected pay</dt>
               <dd>
                 <DataTip
                   label={
@@ -448,7 +475,7 @@ export default function StatementPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ entry, fix, approved }) => (
+                {rows.map(({ entry, fix, submitted: sub, approved }) => (
                   <tr key={entry.id}>
                     <td>
                       {entry.project}
@@ -460,13 +487,11 @@ export default function StatementPage() {
                     </td>
                     <td className="num">
                       {fix ? (
-                        <s
-                          aria-label={`Originally ${formatHours(entry.submitted)}`}
-                        >
-                          {formatHours(entry.submitted)}
+                        <s aria-label={`Originally ${formatHours(sub)}`}>
+                          {formatHours(sub)}
                         </s>
                       ) : (
-                        formatHours(entry.submitted)
+                        formatHours(sub)
                       )}
                     </td>
                     <td className="num">{formatHours(approved)}</td>
@@ -475,8 +500,7 @@ export default function StatementPage() {
                         <span className="st-fix">
                           <History size={14} aria-hidden="true" />
                           <span>
-                            {formatHours(approved - entry.submitted)} ·{" "}
-                            {fix.reason}
+                            {formatHours(approved - sub)} · {fix.reason}
                             <small>
                               {fix.by} · {fix.at}. Your original entry is kept.
                             </small>
@@ -526,11 +550,16 @@ export default function StatementPage() {
       </section>
 
       <section className="s-section" aria-labelledby="st-payment">
-        <h2 id="st-payment">Payment</h2>
+        <div className="s-section-head">
+          <h2 id="st-payment">Payment</h2>
+          <p className="s-note">
+            Whole cutoff ({cutoff.label}); paid once per cutoff.
+          </p>
+        </div>
         <div className="st-states">
           <div className="s-panel st-state">
             <p className="s-label">Expected</p>
-            <Php centavos={expected} />
+            <Php centavos={cutoffExpected} />
             <p className="s-note">From your approved hours and agreement.</p>
           </div>
           <div className="s-panel st-state">
