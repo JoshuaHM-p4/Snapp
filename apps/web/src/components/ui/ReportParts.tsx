@@ -230,7 +230,10 @@ export function ColumnChart({
         <svg
           className="rp-chart"
           viewBox={`0 0 ${width} 214`}
-          style={{ minWidth: Math.min(width, 520), maxWidth: Math.max(width, 640) }}
+          style={{
+            minWidth: Math.min(width, 520),
+            maxWidth: Math.max(width, 640),
+          }}
           role="group"
           aria-label={`${label}: ${points
             .map(
@@ -425,7 +428,10 @@ export function ReportTable<T>({
 
   const download = () => {
     const url = URL.createObjectURL(
-      new Blob([toCsv(ordered, columns)], { type: "text/csv;charset=utf-8" }),
+      // BOM so Excel reads UTF-8 (otherwise "−" and "·" show as mojibake).
+      new Blob(["﻿" + toCsv(ordered, columns)], {
+        type: "text/csv;charset=utf-8",
+      }),
     );
     const link = document.createElement("a");
     link.href = url;
@@ -655,5 +661,84 @@ export function GanttChart({
         )}
       </div>
     </div>
+  );
+}
+
+export type DonutSlice = {
+  label: string;
+  value: number;
+  tone: "series" | "ghost" | "attention";
+};
+
+/** Share-of-total donut. Counts stay visible in the legend; slices are focusable for the tooltip. */
+export function Donut({
+  slices,
+  label,
+  format,
+  center,
+  centerNote,
+}: {
+  slices: DonutSlice[];
+  label: string;
+  format: (value: number) => string;
+  center: string;
+  centerNote: string;
+}) {
+  const tip = useChartTip();
+  const total = slices.reduce((n, s) => n + s.value, 0);
+  const r = 70;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  const pct = (v: number) =>
+    total ? `${((v / total) * 100).toFixed(1)}%` : "0%";
+  return (
+    <figure className="rp-donut" {...tip.frame}>
+      <svg
+        viewBox="0 0 180 180"
+        role="group"
+        aria-label={`${label}: ${slices.map((s) => `${s.label} ${format(s.value)} (${pct(s.value)})`).join("; ")}`}
+      >
+        <circle className="rp-donut-track" cx="90" cy="90" r={r} />
+        {slices
+          .filter((s) => s.value > 0)
+          .map((s) => {
+            const length = total ? (s.value / total) * circumference : 0;
+            const el = (
+              <circle
+                key={s.label}
+                className={`rp-donut-slice rp-fill-${s.tone}`}
+                cx="90"
+                cy="90"
+                r={r}
+                strokeDasharray={`${length} ${circumference - length}`}
+                strokeDashoffset={-offset}
+                {...tip.point(
+                  `${s.label}: ${format(s.value)} (${pct(s.value)})`,
+                )}
+              />
+            );
+            offset += length;
+            return el;
+          })}
+        <text x="90" y="88" textAnchor="middle" className="rp-donut-value">
+          {center}
+        </text>
+        <text x="90" y="108" textAnchor="middle" className="rp-donut-note">
+          {centerNote}
+        </text>
+      </svg>
+      {tip.bubble}
+      <ul className="rp-donut-legend">
+        {slices.map((s) => (
+          <li key={s.label}>
+            <i className={`rp-bg-${s.tone}`} aria-hidden="true" />
+            <span>{s.label}</span>
+            <strong>
+              {format(s.value)} <small>{pct(s.value)}</small>
+            </strong>
+          </li>
+        ))}
+      </ul>
+    </figure>
   );
 }

@@ -294,9 +294,14 @@ export function SnappDateRangePicker({
   error,
   required = true,
   disabled = false,
+  markedDates,
+  markedLabel = "has entries",
 }: {
   label: string;
   value: { start: DateValue; end: DateValue } | null;
+  /** ISO dates to mark with a dot in the calendar (e.g. days with logged hours). */
+  markedDates?: readonly string[];
+  markedLabel?: string;
   onChange: (date: { start: DateValue; end: DateValue } | null) => void;
   min: string;
   max: string;
@@ -383,11 +388,41 @@ export function SnappDateRangePicker({
                 {(day) => <CalendarHeaderCell>{day}</CalendarHeaderCell>}
               </CalendarGridHeader>
               <CalendarGridBody>
-                {(date) => (
-                  <CalendarCell className="snapp-calendar-cell" date={date} />
-                )}
+                {(date) => {
+                  const marked = markedDates?.includes(date.toString());
+                  return (
+                    <CalendarCell
+                      className="snapp-calendar-cell"
+                      date={date}
+                      data-marked={marked || undefined}
+                    >
+                      {({ formattedDate }) => (
+                        <>
+                          {formattedDate}
+                          {marked && (
+                            <>
+                              <i
+                                className="snapp-calendar-mark"
+                                aria-hidden="true"
+                              />
+                              <span className="snapp-visually-hidden">
+                                , {markedLabel}
+                              </span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </CalendarCell>
+                  );
+                }}
               </CalendarGridBody>
             </CalendarGrid>
+            {markedDates && (
+              <p className="snapp-calendar-legend">
+                <i className="snapp-calendar-mark" aria-hidden="true" />{" "}
+                {markedLabel}
+              </p>
+            )}
             <Text slot="errorMessage" className="snapp-error" />
           </RangeCalendar>
           <p className="snapp-hint">

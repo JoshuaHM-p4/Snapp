@@ -30,7 +30,7 @@ export default function App() {
   const location = useLocation();
   if (DesignLibrary && location.pathname === "/dev/library")
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<SnappLoading label="Loading design library" />}>
         <DesignLibrary />
       </Suspense>
     );

@@ -252,3 +252,24 @@
 @media (prefers-reduced-motion: reduce) {
   .rp-outcome-bar span { transition: none; }
 }
+
+.rp-donut { margin: 0; display: grid; gap: 16px; justify-items: center; align-content: center; position: relative; }
+.rp-donut svg { width: 100%; max-width: 200px; height: auto; transform: rotate(-90deg); }
+.rp-donut svg text { transform: rotate(90deg); transform-origin: 90px 90px; }
+.rp-donut-track { fill: none; stroke: var(--raised); stroke-width: 22; }
+.rp-donut-slice { fill: none; stroke-width: 22; cursor: help; outline: none; }
+.rp-donut-slice:focus-visible { stroke-width: 28; }
+.rp-fill-series { stroke: var(--report-series); }
+.rp-fill-ghost { stroke: color-mix(in srgb, var(--report-series) 30%, transparent); }
+.rp-fill-attention { stroke: var(--attention); }
+.rp-bg-series { background: var(--report-series); }
+.rp-bg-ghost { background: color-mix(in srgb, var(--report-series) 30%, transparent); }
+.rp-bg-attention { background: var(--attention); }
+.rp-donut-value { fill: var(--text); font: 600 20px "Geist Mono Variable", monospace; }
+.rp-donut-note { fill: var(--muted); font: 11px "Geist Variable", sans-serif; }
+.rp-donut-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; width: 100%; max-width: 260px; font-size: 13px; }
+.rp-donut-legend li { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.rp-donut-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.rp-donut-legend strong { font: 500 13px "Geist Mono Variable", monospace; }
+.rp-donut-legend small { color: var(--muted); font-weight: 400; }
+.rp-donut .rp-chart-tooltip { top: 0; left: 50%; transform: translateX(-50%); }

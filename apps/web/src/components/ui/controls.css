@@ -648,6 +648,9 @@ textarea.snapp-text-input {
 }
 .snapp-range-calendar .snapp-calendar-cell[data-selected] {
   background: var(--raised);
+  color: var(--text);
+  border-color: transparent;
+  font-weight: 400;
 }
 .snapp-range-calendar .snapp-calendar-cell[data-selection-start],
 .snapp-range-calendar .snapp-calendar-cell[data-selection-end] {
@@ -675,4 +678,41 @@ textarea.snapp-text-input {
   background: var(--raised);
   color: var(--text);
   border-color: var(--border);
+}
+
+/* Marked calendar days (e.g. days with logged hours) */
+.snapp-calendar-cell {
+  position: relative;
+}
+.snapp-calendar-mark {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--report-series, currentColor);
+}
+.snapp-calendar-cell .snapp-calendar-mark {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.snapp-calendar-cell[data-selected] .snapp-calendar-mark {
+  background: currentColor;
+}
+.snapp-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.snapp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

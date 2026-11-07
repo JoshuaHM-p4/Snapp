@@ -168,3 +168,26 @@
 .st-report .rp-sparkline-wrap {
   margin-top: 4px;
 }
+
+.st-days {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 32px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .st-days {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.st-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 16px;
+}
+.st-range .s-note {
+  flex-basis: 100%;
+  margin: 0;
+}

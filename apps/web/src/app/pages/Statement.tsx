@@ -6,10 +6,15 @@ import {
   Printer,
   Send,
 } from "lucide-react";
-import { SnappTextField } from "../../components/ui/SnappControls";
+import { parseDate, type DateValue } from "@internationalized/date";
+import {
+  SnappDateRangePicker,
+  SnappTextField,
+} from "../../components/ui/SnappControls";
 import {
   ColumnChart,
   DataTip,
+  Donut,
   HoursBars,
   ReportTable,
   Sparkline,
@@ -105,11 +110,27 @@ const dayColumns: ReportColumn<DayRow>[] = [
     key: "note",
     label: "Owner note",
     render: (r) => r.note ?? <span className="s-muted">—</span>,
-    csv: (r) => r.note ?? "",
+    csv: (r) => (r.note ?? "").replace(/−/g, "-").replace(/ · /g, " - "),
   },
 ];
 
+const CUTOFF_START = "2026-11-01";
+const CUTOFF_END = "2026-11-15";
+const fullRange = () => ({
+  start: parseDate(CUTOFF_START),
+  end: parseDate(CUTOFF_END),
+});
+
 export default function StatementPage() {
+  const [range, setRange] = useState<{
+    start: DateValue;
+    end: DateValue;
+  } | null>(fullRange);
+  const [applied, setApplied] = useState({
+    start: CUTOFF_START,
+    end: CUTOFF_END,
+  });
+  const [rangeError, setRangeError] = useState("");
   const notify = useNotify();
   const me = employees.find((e) => e.id === statementEmployeeId)!;
   const result = sampleResults.find((r) => r.employeeId === me.id);
@@ -140,8 +161,41 @@ export default function StatementPage() {
       };
     });
   });
-  const byDay = [...new Set(days.map((d) => d.date))].sort().map((date) => {
-    const on = days.filter((d) => d.date === date);
+  const inRange = days.filter(
+    (d) => d.date >= applied.start && d.date <= applied.end,
+  );
+  const rangeSubmitted = sum(inRange.map((d) => d.submitted));
+  const rangeApproved = sum(inRange.map((d) => d.approved));
+  const isFull = applied.start === CUTOFF_START && applied.end === CUTOFF_END;
+  const onRange = (next: { start: DateValue; end: DateValue } | null) => {
+    setRange(next);
+    if (!next) return;
+    const start = next.start.toString();
+    const end = next.end.toString();
+    if (start > end || start < CUTOFF_START || end > CUTOFF_END) {
+      setRangeError(`Choose dates within ${cutoff.label}, start before end.`);
+      return;
+    }
+    setRangeError("");
+    setApplied({ start, end });
+  };
+  const periodLabel = isFull
+    ? cutoff.label
+    : (() => {
+        const a = dayLabel(applied.start);
+        const b = dayLabel(applied.end);
+        return `${a === b ? a : `${a}–${b.replace(/^[A-Za-z]+ /, a.slice(0, 3) === b.slice(0, 3) ? "" : "$&")}`}, ${applied.end.slice(0, 4)}`;
+      })();
+  const entryBars = rows.map(({ entry }) => {
+    const mine = inRange.filter((d) => d.id.startsWith(`${entry.id}-`));
+    return {
+      label: `${entry.project} · ${entry.task}`,
+      submitted: sum(mine.map((d) => d.submitted)),
+      approved: sum(mine.map((d) => d.approved)),
+    };
+  });
+  const byDay = [...new Set(inRange.map((d) => d.date))].sort().map((date) => {
+    const on = inRange.filter((d) => d.date === date);
     const note = on.find((d) => d.note)?.note;
     return {
       label: dayLabel(date),
@@ -167,7 +221,7 @@ export default function StatementPage() {
   return (
     <div className="s-page st-page">
       <PageHeader
-        title={`Your ${cutoff.label} statement`}
+        title={`Your ${periodLabel} statement`}
         lede="Every number on this page, and how it was calculated. Raise anything that doesn't match your records."
         actions={
           <button
@@ -187,6 +241,40 @@ export default function StatementPage() {
           </>
         }
       />
+
+      <section
+        className="st-range s-panel"
+        aria-label="Dates shown in the reports below"
+      >
+        <SnappDateRangePicker
+          label="Show dates"
+          value={range}
+          onChange={onRange}
+          min={CUTOFF_START}
+          max={CUTOFF_END}
+          error={rangeError}
+          markedDates={days.map((d) => d.date)}
+          markedLabel="hours logged"
+        />
+        <button
+          type="button"
+          className="s-btn s-btn--sm s-btn--quiet"
+          disabled={isFull && !rangeError}
+          onClick={() => {
+            setRange(fullRange());
+            setApplied({ start: CUTOFF_START, end: CUTOFF_END });
+            setRangeError("");
+          }}
+        >
+          Whole cutoff
+        </button>
+        <p className="s-note" role="status">
+          {byDay.length} {byDay.length === 1 ? "day" : "days"} worked ·{" "}
+          {formatHours(rangeApproved)} approved of {formatHours(rangeSubmitted)}
+          . Reports below follow these dates; expected pay is always the whole
+          cutoff.
+        </p>
+      </section>
 
       <section className="st-summary s-panel" aria-labelledby="st-expected">
         <div className="st-who">
@@ -229,8 +317,10 @@ export default function StatementPage() {
             <div>
               <dt>Submitted</dt>
               <dd>
-                <DataTip label="Hours you submitted for this cutoff, before the owner's review.">
-                  {formatHours(submittedTotal)}
+                <DataTip
+                  label={`Hours you submitted for ${periodLabel}, before the owner's review.`}
+                >
+                  {formatHours(rangeSubmitted)}
                 </DataTip>
               </dd>
               {cumulative.length > 1 && (
@@ -244,8 +334,10 @@ export default function StatementPage() {
             <div>
               <dt>Approved</dt>
               <dd>
-                <DataTip label="Hours the owner approved. Corrections keep your original entry and show a reason.">
-                  {formatHours(approvedTotal)}
+                <DataTip
+                  label={`Hours the owner approved for ${periodLabel}. Corrections keep your original entry and show a reason.`}
+                >
+                  {formatHours(rangeApproved)}
                 </DataTip>
               </dd>
               {cumulative.length > 1 && (
@@ -257,7 +349,7 @@ export default function StatementPage() {
               )}
             </div>
             <div>
-              <dt>Expected pay</dt>
+              <dt>Expected pay · whole cutoff</dt>
               <dd>
                 <DataTip
                   label={
@@ -272,12 +364,8 @@ export default function StatementPage() {
             </div>
           </dl>
           <HoursBars
-            rows={rows.map(({ entry, approved }) => ({
-              label: `${entry.project} · ${entry.task}`,
-              submitted: entry.submitted,
-              approved,
-            }))}
-            scale={Math.max(1, ...rows.map((r) => r.entry.submitted))}
+            rows={entryBars}
+            scale={Math.max(1, ...entryBars.map((r) => r.submitted))}
             format={formatHours}
           />
           <p className="s-note">
@@ -287,27 +375,48 @@ export default function StatementPage() {
         </div>
       </section>
 
-      {byDay.length > 0 && (
+      {days.length > 0 && (
         <section className="s-section" aria-labelledby="st-days">
           <div className="s-section-head">
             <h2 id="st-days">Hours by day</h2>
             <p className="s-note">Hover, focus or tap a day for details.</p>
           </div>
-          <div className="s-panel st-report">
-            <ColumnChart
-              points={byDay}
-              label="Approved and submitted hours by day"
-              format={formatHours}
-              valueLabel="Approved"
-              ghostLabel="Submitted"
-            />
-          </div>
+          {byDay.length === 0 ? (
+            <p className="s-panel s-empty">
+              No hours in these dates. Pick other days or show the whole cutoff.
+            </p>
+          ) : (
+            <div className="s-panel st-days">
+              <ColumnChart
+                points={byDay}
+                label="Approved and submitted hours by day"
+                format={formatHours}
+                valueLabel="Approved"
+                ghostLabel="Submitted"
+              />
+              <Donut
+                label="Submitted hours by owner review outcome"
+                format={formatHours}
+                center={formatHours(rangeApproved)}
+                centerNote={`approved of ${formatHours(rangeSubmitted)}`}
+                slices={[
+                  { label: "Approved", value: rangeApproved, tone: "series" },
+                  {
+                    label: "Corrected by owner",
+                    value: rangeSubmitted - rangeApproved,
+                    tone: "attention",
+                  },
+                ]}
+              />
+            </div>
+          )}
           <div className="s-panel s-panel--flush">
             <ReportTable
-              rows={days}
+              rows={inRange}
+              empty="No hours in these dates. Pick other days or show the whole cutoff."
               columns={dayColumns}
               rowKey={(r) => r.id}
-              caption={`Your daily hours, ${cutoff.label}`}
+              caption={`Your daily hours, ${periodLabel}`}
               csvName={`snapp-statement-${cutoff.id}.csv`}
               initialSort={{ key: "date" }}
             />
