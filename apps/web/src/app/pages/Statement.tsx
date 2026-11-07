@@ -285,7 +285,7 @@ export default function StatementPage() {
         />
         <button
           type="button"
-          className="s-btn s-btn--sm s-btn--quiet"
+          className="s-btn s-btn--sm"
           disabled={isFull && !rangeError}
           onClick={() => {
             setRange(fullRange());

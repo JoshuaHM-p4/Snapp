@@ -184,10 +184,27 @@
 .st-range {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: 12px 16px;
+  align-items: flex-start;
+  gap: 4px 12px;
+}
+.st-range > .snapp-date-picker {
+  flex: 0 1 380px;
+  min-width: 0;
+}
+.st-range > .s-btn {
+  margin-top: 36px;
+  white-space: nowrap;
 }
 .st-range .s-note {
   flex-basis: 100%;
   margin: 0;
+}
+@media (max-width: 520px) {
+  .st-range > .snapp-date-picker {
+    flex-basis: 100%;
+  }
+  .st-range > .s-btn {
+    margin-top: 0;
+    justify-self: start;
+  }
 }
