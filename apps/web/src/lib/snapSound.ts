@@ -1,5 +1,6 @@
 import { soundTokens } from "./soundTokens";
-// Snapp approval sound, synthesized with the Web Audio API (no recorded or licensed sample).
+import { loadSnapRecording, scheduleRecordedSnap } from "./recordedSnap";
+// Snapp approval sound. playSnap uses the recorded CC0 snap and falls back to this Web Audio synthesis.
 // Sequence: an air-suction swell while the owner holds, then a crisp snap with a short reverb tail.
 // The product default is sound OFF (see SNAPP_BRAND.md, section 8); callers decide when to play.
 //
@@ -193,8 +194,34 @@ export function startSuction(holdMs: number, volume = 1): Suction {
   return scheduleSuction(c, c.currentTime, holdMs, volume);
 }
 
-/** Live playback: play the snap now. */
+// The recorded CC0 snap (public/audio/LICENSE.md) is the default; synthesis is the fallback.
+let recording: AudioBuffer | null = null;
+let loading: Promise<void> | null = null;
+
+/** Fetch and decode the recorded snap once. Safe to call repeatedly; failures leave the synth fallback. */
+export function preloadSnap(): Promise<void> {
+  if (recording || loading) return loading ?? Promise.resolve();
+  const c = audio();
+  loading = loadSnapRecording(c, new AbortController().signal)
+    .then((buffer) => {
+      recording = buffer;
+    })
+    .catch(() => {
+      loading = null; // allow a later retry; the synth covers this play
+    });
+  return loading;
+}
+
+/** Live playback: play the snap now (recorded when available, synthesized otherwise). */
 export function playSnap(volume = 1): void {
   const c = audio();
+  if (recording) {
+    const gain = c.createGain();
+    gain.gain.value = volume;
+    gain.connect(c.destination);
+    scheduleRecordedSnap(c, recording, c.currentTime + 0.005, gain);
+    return;
+  }
+  void preloadSnap();
   scheduleSnap(c, c.currentTime + 0.005, volume);
 }

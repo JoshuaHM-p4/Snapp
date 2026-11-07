@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Lock } from "lucide-react";
-import { playSnap, startSuction, type Suction } from "../lib/snapSound";
+import { playSnap, preloadSnap, startSuction, type Suction } from "../lib/snapSound";
 import { useSnappTheme } from "../theme/ThemeProvider";
 import "./hold.css";
 
@@ -114,6 +114,7 @@ export function HoldToSnap({
           setStatus("Holding… release early to cancel.");
           if (sound) {
             try {
+              void preloadSnap(); // so the release plays the recording, not the fallback
               suction.current = startSuction(HOLD_MS, 0.5);
             } catch {
               suction.current = null;

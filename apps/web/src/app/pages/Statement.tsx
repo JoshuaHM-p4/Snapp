@@ -1,7 +1,20 @@
 import { useState } from "react";
-import { EyeOff, History, MessageCircleWarning, Printer, Send } from "lucide-react";
+import {
+  EyeOff,
+  History,
+  MessageCircleWarning,
+  Printer,
+  Send,
+} from "lucide-react";
 import { SnappTextField } from "../../components/ui/SnappControls";
-import { DataTip, HoursBars } from "../../components/ui/ReportParts";
+import {
+  ColumnChart,
+  DataTip,
+  HoursBars,
+  ReportTable,
+  Sparkline,
+  type ReportColumn,
+} from "../../components/ui/ReportParts";
 import { validateText, type TextRules } from "../../components/ui/validation";
 import {
   cutoff,
@@ -22,14 +35,79 @@ const discrepancyRules: TextRules = {
 };
 
 /** The owner's recorded corrections for this statement (sample data). */
-const corrections: Record<string, { approved: number; reason: string; by: string; at: string }> = {
+const corrections: Record<
+  string,
+  { approved: number; reason: string; by: string; at: string; date?: string }
+> = {
   "e-alex-1": {
     approved: 380,
     reason: "Duplicate time entry on Nov 7",
     by: "Owner",
     at: "Nov 16, 2026 · 09:31 PHT",
+    date: "2026-11-07",
   },
 };
+
+type DayRow = {
+  id: string;
+  date: string;
+  project: string;
+  task: string;
+  submitted: number;
+  approved: number;
+  note?: string;
+};
+
+const dayLabel = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-PH", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+
+const dayColumns: ReportColumn<DayRow>[] = [
+  {
+    key: "date",
+    label: "Date",
+    value: (r) => r.date,
+    render: (r) => dayLabel(r.date),
+    csv: (r) => r.date,
+  },
+  {
+    key: "project",
+    label: "Project / task",
+    value: (r) => r.project,
+    render: (r) => (
+      <>
+        {r.project}
+        <small className="st-sub">{r.task}</small>
+      </>
+    ),
+    csv: (r) => `${r.project} / ${r.task}`,
+  },
+  {
+    key: "submitted",
+    label: "Submitted",
+    numeric: true,
+    value: (r) => r.submitted,
+    render: (r) => formatHours(r.submitted),
+    csv: (r) => (r.submitted / 10).toFixed(1),
+  },
+  {
+    key: "approved",
+    label: "Approved",
+    numeric: true,
+    value: (r) => r.approved,
+    render: (r) => formatHours(r.approved),
+    csv: (r) => (r.approved / 10).toFixed(1),
+  },
+  {
+    key: "note",
+    label: "Owner note",
+    render: (r) => r.note ?? <span className="s-muted">—</span>,
+    csv: (r) => r.note ?? "",
+  },
+];
 
 export default function StatementPage() {
   const notify = useNotify();
@@ -45,6 +123,39 @@ export default function StatementPage() {
     return { entry, fix, approved };
   });
   const approvedTotal = sum(rows.map((r) => r.approved));
+  // Day-by-day log. A correction comes off the day it names; the original entry stays visible.
+  const days: DayRow[] = me.entries.flatMap((entry) => {
+    const fix = corrections[entry.id];
+    return (entry.days ?? []).map((d) => {
+      const cut =
+        fix && fix.date === d.date ? entry.submitted - fix.approved : 0;
+      return {
+        id: `${entry.id}-${d.date}`,
+        date: d.date,
+        project: entry.project,
+        task: entry.task,
+        submitted: d.hours,
+        approved: d.hours - cut,
+        note: cut ? `${formatHours(-cut)} · ${fix!.reason}` : undefined,
+      };
+    });
+  });
+  const byDay = [...new Set(days.map((d) => d.date))].sort().map((date) => {
+    const on = days.filter((d) => d.date === date);
+    const note = on.find((d) => d.note)?.note;
+    return {
+      label: dayLabel(date),
+      value: sum(on.map((d) => d.approved)),
+      ghost: sum(on.map((d) => d.submitted)),
+      note,
+    };
+  });
+  let runSub = 0;
+  let runApp = 0;
+  const cumulative = byDay.map((p) => ({
+    sub: { label: p.label, value: (runSub += p.ghost) },
+    app: { label: p.label, value: (runApp += p.value) },
+  }));
   const submittedTotal = sum(rows.map((r) => r.entry.submitted));
   const adjustments = 0;
   const base =
@@ -59,14 +170,20 @@ export default function StatementPage() {
         title={`Your ${cutoff.label} statement`}
         lede="Every number on this page, and how it was calculated. Raise anything that doesn't match your records."
         actions={
-          <button type="button" className="s-btn" onClick={() => window.print()}>
+          <button
+            type="button"
+            className="s-btn"
+            onClick={() => window.print()}
+          >
             <Printer size={16} aria-hidden="true" /> Print
           </button>
         }
         meta={
           <>
             <Chip>Sample data</Chip>
-            <Chip icon={<EyeOff size={13} aria-hidden="true" />}>Own data only</Chip>
+            <Chip icon={<EyeOff size={13} aria-hidden="true" />}>
+              Own data only
+            </Chip>
           </>
         }
       />
@@ -79,7 +196,10 @@ export default function StatementPage() {
             {me.agreement.kind === "hourly" && (
               <>
                 {" "}
-                · <span className="s-mono">{formatPhp(me.agreement.rate)}</span> / h
+                · <span className="s-mono">
+                  {formatPhp(me.agreement.rate)}
+                </span>{" "}
+                / h
               </>
             )}
           </p>
@@ -100,7 +220,9 @@ export default function StatementPage() {
       <section className="s-section" aria-labelledby="st-report">
         <div className="s-section-head">
           <h2 id="st-report">At a glance</h2>
-          <p className="s-note">Hover or focus a figure to see how it is made.</p>
+          <p className="s-note">
+            Hover or focus a figure to see how it is made.
+          </p>
         </div>
         <div className="s-panel st-report">
           <dl className="st-scorecards">
@@ -111,6 +233,13 @@ export default function StatementPage() {
                   {formatHours(submittedTotal)}
                 </DataTip>
               </dd>
+              {cumulative.length > 1 && (
+                <Sparkline
+                  points={cumulative.map((c) => c.sub)}
+                  label="Submitted hours, running total"
+                  format={formatHours}
+                />
+              )}
             </div>
             <div>
               <dt>Approved</dt>
@@ -119,6 +248,13 @@ export default function StatementPage() {
                   {formatHours(approvedTotal)}
                 </DataTip>
               </dd>
+              {cumulative.length > 1 && (
+                <Sparkline
+                  points={cumulative.map((c) => c.app)}
+                  label="Approved hours, running total"
+                  format={formatHours}
+                />
+              )}
             </div>
             <div>
               <dt>Expected pay</dt>
@@ -144,15 +280,47 @@ export default function StatementPage() {
             scale={Math.max(1, ...rows.map((r) => r.entry.submitted))}
             format={formatHours}
           />
-          <p className="s-note">Bars share one scale starting at zero. Light = submitted, solid = approved.</p>
+          <p className="s-note">
+            Bars share one scale starting at zero. Light = submitted, solid =
+            approved.
+          </p>
         </div>
       </section>
+
+      {byDay.length > 0 && (
+        <section className="s-section" aria-labelledby="st-days">
+          <div className="s-section-head">
+            <h2 id="st-days">Hours by day</h2>
+            <p className="s-note">Hover, focus or tap a day for details.</p>
+          </div>
+          <div className="s-panel st-report">
+            <ColumnChart
+              points={byDay}
+              label="Approved and submitted hours by day"
+              format={formatHours}
+              valueLabel="Approved"
+              ghostLabel="Submitted"
+            />
+          </div>
+          <div className="s-panel s-panel--flush">
+            <ReportTable
+              rows={days}
+              columns={dayColumns}
+              rowKey={(r) => r.id}
+              caption={`Your daily hours, ${cutoff.label}`}
+              csvName={`snapp-statement-${cutoff.id}.csv`}
+              initialSort={{ key: "date" }}
+            />
+          </div>
+        </section>
+      )}
 
       <section className="s-section" aria-labelledby="st-hours">
         <div className="s-section-head">
           <h2 id="st-hours">Hours by project</h2>
           <p className="s-note">
-            Submitted {formatHours(submittedTotal)} · approved {formatHours(approvedTotal)}
+            Submitted {formatHours(submittedTotal)} · approved{" "}
+            {formatHours(approvedTotal)}
           </p>
         </div>
         <div className="s-panel s-panel--flush">
@@ -176,12 +344,21 @@ export default function StatementPage() {
                     <td>
                       {entry.project}
                       <small>
-                        {entry.task} · {entry.deliverable.title} v{entry.deliverable.version} ·{" "}
+                        {entry.task} · {entry.deliverable.title} v
+                        {entry.deliverable.version} ·{" "}
                         {evaluationLabel[entry.deliverable.evaluation]}
                       </small>
                     </td>
                     <td className="num">
-                      {fix ? <s aria-label={`Originally ${formatHours(entry.submitted)}`}>{formatHours(entry.submitted)}</s> : formatHours(entry.submitted)}
+                      {fix ? (
+                        <s
+                          aria-label={`Originally ${formatHours(entry.submitted)}`}
+                        >
+                          {formatHours(entry.submitted)}
+                        </s>
+                      ) : (
+                        formatHours(entry.submitted)
+                      )}
                     </td>
                     <td className="num">{formatHours(approved)}</td>
                     <td>
@@ -189,7 +366,8 @@ export default function StatementPage() {
                         <span className="st-fix">
                           <History size={14} aria-hidden="true" />
                           <span>
-                            {formatHours(approved - entry.submitted)} · {fix.reason}
+                            {formatHours(approved - entry.submitted)} ·{" "}
+                            {fix.reason}
                             <small>
                               {fix.by} · {fix.at}. Your original entry is kept.
                             </small>
@@ -206,8 +384,8 @@ export default function StatementPage() {
           </div>
         </div>
         <p className="s-note">
-          Client feedback is shown for context. It doesn't decide whether your hours are paid; your
-          agreement does.
+          Client feedback is shown for context. It doesn't decide whether your
+          hours are paid; your agreement does.
         </p>
       </section>
 
@@ -259,8 +437,8 @@ export default function StatementPage() {
             <p className="s-label">Confirmed received</p>
             <p className="st-state-value s-muted">Not yet</p>
             <p className="s-note">
-              Shows only after the claim is confirmed. This statement explains the amount; it isn't
-              proof of transfer.
+              Shows only after the claim is confirmed. This statement explains
+              the amount; it isn't proof of transfer.
             </p>
           </div>
         </div>
@@ -277,12 +455,14 @@ export default function StatementPage() {
             setSubmitted(true);
             if (validateText(text, discrepancyRules)) return;
             setSent(true);
-            notify("Sent for review. Your original statement is kept; any correction needs owner reapproval.");
+            notify(
+              "Sent for review. Your original statement is kept; any correction needs owner reapproval.",
+            );
           }}
         >
           <p className="s-muted">
-            Tell the owner what's different. Your statement stays as it is while they review, and
-            any correction is recalculated and approved again.
+            Tell the owner what's different. Your statement stays as it is while
+            they review, and any correction is recalculated and approved again.
           </p>
           <SnappTextField
             label="What doesn't match"
@@ -301,7 +481,8 @@ export default function StatementPage() {
             <button type="submit" className="s-btn" disabled={sent}>
               {sent ? (
                 <>
-                  <MessageCircleWarning size={16} aria-hidden="true" /> Under review
+                  <MessageCircleWarning size={16} aria-hidden="true" /> Under
+                  review
                 </>
               ) : (
                 <>
@@ -323,13 +504,15 @@ export default function StatementPage() {
               </button>
             )}
           </div>
-          {sent && <StatusChip status="disputed" label="Disputed · under review" />}
+          {sent && (
+            <StatusChip status="disputed" label="Disputed · under review" />
+          )}
         </form>
       </section>
 
       <PreviewNotice>
-        You only see your own pay. Colleagues' compensation is never shown. This is a preview with
-        sample data: nothing is sent.
+        You only see your own pay. Colleagues' compensation is never shown. This
+        is a preview with sample data: nothing is sent.
       </PreviewNotice>
     </div>
   );

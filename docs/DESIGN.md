@@ -52,8 +52,8 @@ No bank UI/OTP automation, one-OTP promise or production settlement visual may b
 ## Design acceptance checklist
 - [ ] Brand reference/assets approved
 - [ ] Typography and tokens documented
-- [ ] Mobile 360px layout verified
+- [x] Mobile 360px layout verified (automated, 2026-11-07: all 12 routes and the three milestone views at 360/768/1280 px in Ink and Paper; no horizontal page scroll, no unnamed controls. Open: a few standalone text links are 19–21 px tall, under the 24 px target)
 - [ ] Contrast at least WCAG AA for primary text/controls
-- [ ] Full keyboard navigation, visible focus state and descriptive labels
+- [ ] Full keyboard navigation (automated label check passed; manual keyboard/touch pass still open), visible focus state and descriptive labels
 - [ ] Page empty/loading/error/success states
 - [ ] Founder screenshot approval

@@ -654,3 +654,25 @@ textarea.snapp-text-input {
   background: var(--selection);
   color: var(--selection-text);
 }
+
+/* Tabs (moved from the dev library so product pages get them too) */
+.lib-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.lib-tabs button {
+  background: none;
+  border: 1px solid transparent;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lib-tabs button[aria-selected="true"] {
+  background: var(--raised);
+  color: var(--text);
+  border-color: var(--border);
+}

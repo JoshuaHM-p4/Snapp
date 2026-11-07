@@ -24,6 +24,8 @@ export type HoursEntry = {
   submitted: HourTenths;
   deliverable: { title: string; version: number; evaluation: ClientEvaluation };
   agentFlag?: { note: string; suggested?: HourTenths };
+  /** Optional fictional day-by-day split of `submitted` (sums to it exactly). */
+  days?: { date: string; hours: HourTenths }[];
 };
 
 export type Employee = {
@@ -63,6 +65,16 @@ export const employees: Employee[] = [
           note: "Nov 7 has two identical 2.0 h entries for T-114. Possible duplicate.",
           suggested: 380,
         },
+        days: [
+          { date: "2026-11-03", hours: 60 },
+          { date: "2026-11-04", hours: 50 },
+          { date: "2026-11-05", hours: 70 },
+          { date: "2026-11-06", hours: 40 },
+          { date: "2026-11-07", hours: 60 },
+          { date: "2026-11-10", hours: 50 },
+          { date: "2026-11-11", hours: 40 },
+          { date: "2026-11-12", hours: 30 },
+        ],
       },
     ],
     recipient: { label: "Testnet wallet GBXQ…VKE6", verified: true },

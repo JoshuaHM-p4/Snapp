@@ -392,3 +392,16 @@
   line-height: 1.1;
   font-weight: 500;
 }
+
+/* Milestone views */
+.rc-evidence-summary {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.rc-ms-panel {
+  margin-top: 16px;
+}
+.rc-ms-foot {
+  margin-top: 12px;
+}

@@ -1,7 +1,7 @@
 import { CircleCheck, CircleX, Moon, Sun } from "lucide-react";
 import { SnappSwitch } from "../../components/ui/SnappControls";
 import { useSnappTheme } from "../../theme/ThemeProvider";
-import { playSnap } from "../../lib/snapSound";
+import { playSnap, preloadSnap } from "../../lib/snapSound";
 import { useApi } from "../api";
 import { ApiState, Chip, PageHeader } from "../ui";
 import "./records.css";
@@ -49,7 +49,7 @@ export default function SettingsPage() {
             </div>
             <div className="rc-setting-controls">
               <SnappSwitch label={sound ? "On" : "Off"} selected={sound} onChange={setSound} />
-              <button type="button" className="s-btn s-btn--sm" disabled={!sound} onClick={() => playSnap(0.6)}>
+              <button type="button" className="s-btn s-btn--sm" disabled={!sound} onClick={() => void preloadSnap().then(() => playSnap(0.6))}>
                 Preview
               </button>
             </div>
