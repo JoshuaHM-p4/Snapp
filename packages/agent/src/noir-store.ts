@@ -110,6 +110,10 @@ export class Journal {
   }
   evidence(a:Approval):unknown {
     this.verify(a);
-    return {digest:a.digest,scope:'controlled-testnet-experiment; not payroll settlement',decisions:this.decisions(a.manifest.id).map(row=>({...row,details:JSON.parse(row.details_json)})),operations:this.operations(a.manifest.id).map(row=>({...row,operation:JSON.parse(row.operation_json),evidence:JSON.parse(row.evidence_json),explorer:`https://stellar.expert/explorer/testnet/tx/${row.tx_hash}`,transactionConfirmed:row.state==='succeeded',events:this.db.prepare('SELECT state,details_json,created_at FROM events WHERE operation_id=? ORDER BY id').all(row.id)}))};
+    // Parsed fields only; the raw *_json columns would duplicate every value in the output.
+    const decisions=this.decisions(a.manifest.id).map(({details_json,...row})=>({...row,details:JSON.parse(details_json)}));
+    const operations=this.operations(a.manifest.id).map(({operation_json,evidence_json,...row})=>({...row,operation:JSON.parse(operation_json),evidence:JSON.parse(evidence_json),explorer:`https://stellar.expert/explorer/testnet/tx/${row.tx_hash}`,transactionConfirmed:row.state==='succeeded',
+      transitions:(this.db.prepare('SELECT state,created_at FROM events WHERE operation_id=? ORDER BY id').all(row.id) as {state:string;created_at:string}[]).map(t=>`${t.created_at} ${t.state}`)}));
+    return {digest:a.digest,scope:'controlled-testnet-experiment; not payroll settlement',decisions,operations};
   }
 }

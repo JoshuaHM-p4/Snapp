@@ -95,7 +95,16 @@ async function main():Promise<void>{
       console.log(json({digest:a.digest,approved:true,chainWrite:false}));return;
     }
     if(command==='evidence'){console.log(json(journal.evidence(a)));return;}
-    if(command==='reconcile'){console.log(json(await reconcile(createClient(),journal,a)));return;}
+    if(command==='reconcile'){
+      // One line per operation. `evidence` prints the full record.
+      const result=await reconcile(createClient(),journal,a) as {operations:{kind:string;state:string;ledger:number|null;tx_hash:string;explorer:string;evidence:{eventEvidence?:string;events?:{type:string;amount?:string}[]}}[]};
+      for(const op of result.operations){
+        const ev=op.evidence.events?.map(e=>e.type+(e.amount?` ${e.amount} stroops`:'')).join(', ')||`events ${op.evidence.eventEvidence??'none'}`;
+        console.log(`${op.kind.padEnd(9)} ${op.state.padEnd(9)} ledger ${op.ledger??'-'}  ${ev}\n          ${op.explorer}`);
+      }
+      if(result.operations.length===0)console.log('no operations recorded yet');
+      return;
+    }
     if(command==='check'){console.log(json(await checkExperiment(createClient(),journal,a,process.env.ALLOWED_MERCHANT_ADDRESSES)));return;}
     const deps=()=>({client:createClient(),journal,risk:jevRiskModel(),env:{disabled:process.env.SNAPP_AUTOPILOT_DISABLED==='true'},allowlist:process.env.ALLOWED_MERCHANT_ADDRESSES});
     if(command==='assess'){console.log(json(await runAutopilot(deps(),a,payout!)));return;}

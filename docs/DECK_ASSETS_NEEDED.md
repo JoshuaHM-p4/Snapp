@@ -18,7 +18,7 @@ Capture at 1500 x 900 (5:3), dark theme if possible. The tilt and shadow are app
 
 | Logo | Slide | Status |
 |---|---|---|
-| Proyekto | 06 | **Needed.** No official source found. Currently a labeled placeholder tile |
+| Proyekto | 06 | Done (`proyekto-logo.png` mark and `proyekto-wordmark.png`, supplied by the team) |
 | Noir, Velo, Stellar | 06, 08, 09 | Done (official files in `docs/deck-assets/logos/`) |
 
 ## Links and text

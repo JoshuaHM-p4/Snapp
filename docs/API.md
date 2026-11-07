@@ -8,7 +8,7 @@ Base local: `http://localhost:4000`. Routes tagged **implemented** are present i
 | GET | `/api/projects` | Fictional project samples; **public demo only** | No |
 | GET | `/api/agent/preview/:projectId` | Pure deterministic hold/review/pay decision; **no payment** | No |
 | POST | `/api/payments/checkout` | Creates Velo Testnet checkout when `DEMO_MODE=false`; `{projectId, amountXlm}` | `Bearer ADMIN_API_TOKEN` |
-| GET | `/api/collections` | Client collections this server created through Velo, with the status Velo last reported and the transaction hash from the verified event | none (fictional demo data) |
+| GET | `/api/collections` | Client collections this server created through Velo (`Collection[]` type in `packages/shared`), with the status Velo last reported and the transaction hash from the verified event | none (fictional demo data) |
 | POST | `/api/collections/:id/reconcile` | Operator re-check for a missed or unreachable webhook: same `paymentIntents.retrieve` path, only for intents this server created; idempotent | `Bearer ADMIN_API_TOKEN` |
 | POST | `/api/webhooks/velo` | Raw-body HMAC verification, dedupe on `event.id` (SQLite), then `paymentIntents.retrieve` to set the collection status; a redelivery is a no-op, an unknown or unverifiable event never changes state | Velo signature |
 
