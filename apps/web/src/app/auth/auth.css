@@ -1,0 +1,182 @@
+/* Wallet sign-in: connect dialog, header account, role pages. Shares the workspace tokens. */
+.s-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(10 10 15 / 0.7);
+}
+.s-modal-overlay[data-entering] {
+  animation: s-dialog-in var(--dur-beat) var(--ease-snap);
+}
+.s-modal {
+  width: min(480px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+.s-connect {
+  display: grid;
+  gap: 20px;
+  padding: 28px;
+  outline: none;
+}
+.s-connect-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.s-connect-head h2 {
+  font-size: 22px;
+  line-height: 28px;
+}
+.s-connect-lede {
+  font-size: 15px;
+  line-height: 22px;
+}
+.s-connect-options {
+  display: grid;
+  gap: 10px;
+}
+.s-connect-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-snap) var(--ease-standard),
+    border-color var(--dur-snap) var(--ease-standard);
+}
+.s-connect-option:hover:not([data-disabled]) {
+  background: var(--raised);
+}
+.s-connect-option[data-focus-visible] {
+  outline: 2px solid var(--human);
+  outline-offset: 2px;
+}
+.s-connect-option[data-disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.s-connect-option svg {
+  flex: none;
+}
+.s-connect-option span {
+  display: grid;
+  gap: 2px;
+}
+.s-connect-option strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.s-connect-option small {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--muted);
+}
+@keyframes s-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+/* Header account: chip + address + sign out on wide screens, icon only on phones. */
+.s-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.s-account-addr {
+  font-size: 13px;
+  color: var(--muted);
+}
+.s-account-label {
+  display: inline;
+}
+.s-nav-account {
+  display: none;
+}
+@media (max-width: 720px) {
+  .s-account-addr,
+  .s-account .s-chip,
+  .s-account-label {
+    display: none;
+  }
+  .s-account .s-btn,
+  .s-account-connect {
+    width: 44px;
+    padding: 0;
+  }
+  .s-nav-account {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .s-nav-account-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+/* Visitor banner above the workspace view. */
+.s-visitor-notice {
+  margin-bottom: 24px;
+}
+
+/* Role pages: one panel per run. */
+.rn-run {
+  display: grid;
+  gap: 20px;
+}
+.rn-run-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.rn-run-head h2 {
+  font-size: 20px;
+  line-height: 26px;
+}
+.rn-amounts {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.rn-amount {
+  display: grid;
+  gap: 6px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.rn-amount .s-amount {
+  font-size: 22px;
+  line-height: 28px;
+}
+.rn-amount-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}

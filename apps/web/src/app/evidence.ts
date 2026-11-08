@@ -49,3 +49,6 @@ export const phtTime = (iso: string) =>
     minute: "2-digit",
     second: "2-digit",
   }) + " PHT";
+
+export const phtDay = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium" });

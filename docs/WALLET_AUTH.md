@@ -1,6 +1,6 @@
 # Wallet sign-in and in-browser signing: design note and plan
 
-Status: proposal, not implemented. Written Nov 8, 2026, after the hackathon submission, for the pitch week and after.
+Status: steps 0 to 3 implemented Nov 8, 2026 (server: `apps/server/src/auth.ts`, `runs.ts`; web: `apps/web/src/app/auth/`). Step 4 (browser-side signing) remains a proposal. Setup in [SETUP §6b](../SETUP.md#6b-wallet-sign-in-owner-and-developer-views).
 
 ## Why
 

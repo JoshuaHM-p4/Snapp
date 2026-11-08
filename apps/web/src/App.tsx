@@ -16,6 +16,9 @@ import Results from "./app/pages/Results";
 import Proof from "./app/pages/Proof";
 import Agent from "./app/pages/Agent";
 import SettingsPage from "./app/pages/Settings";
+import MyRuns from "./app/pages/MyRuns";
+import MyPayments from "./app/pages/MyPayments";
+import { RequireRole } from "./app/auth/RequireRole";
 
 // Dev-only tools; import.meta.env.DEV is false in production builds, so these are dropped.
 const HoldPlayground = import.meta.env.DEV ? lazy(() => import("./dev/HoldPlayground")) : null;
@@ -50,6 +53,22 @@ export default function App() {
           <Route path="developers" element={<Developers />} />
           <Route path="proof" element={<Proof />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route
+            path="runs"
+            element={
+              <RequireRole role="owner">
+                <MyRuns />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="payments"
+            element={
+              <RequireRole role="developer">
+                <MyPayments />
+              </RequireRole>
+            }
+          />
           <Route path="*" element={<NotFound inApp />} />
         </Route>
         {/* Earlier scaffold URLs keep working. */}

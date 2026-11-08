@@ -8,6 +8,12 @@ Base local: `http://localhost:4000`. Routes tagged **implemented** are present i
 | GET | `/api/projects` | Fictional project samples; **public demo only** | No |
 | GET | `/api/agent/preview/:projectId` | Pure deterministic hold/review/pay decision; **no payment** | No |
 | POST | `/api/payments/checkout` | Creates Velo Testnet checkout when `DEMO_MODE=false`; `{projectId, amountXlm}` | `Bearer ADMIN_API_TOKEN` |
+| GET | `/api/me` | Current wallet session `{session, authEnabled}`; `session` is null when signed out | cookie |
+| GET | `/api/auth/challenge?account=G…` | SEP-10 challenge transaction signed by the server's funds-less auth key (5 min) | none |
+| POST | `/api/auth/verify` | `{transaction}`: wallet-signed challenge → session cookie; role derived from uploaded runs and collections | none |
+| POST | `/api/auth/logout` | Clears the session cookie | cookie |
+| GET | `/api/runs` | Runs visible to the signed-in address (owner: runs it approved; developer: runs paying it) | session: owner or developer |
+| PUT | `/api/runs` | Operator uploads `npm run noir -- evidence` JSON (public data) so roles and views can be derived; never signs | `Bearer ADMIN_API_TOKEN` |
 | GET | `/api/collections` | Client collections this server created through Velo (`Collection[]` type in `packages/shared`), with the status Velo last reported and the transaction hash from the verified event | none (fictional demo data) |
 | POST | `/api/collections/:id/reconcile` | Operator re-check for a missed or unreachable webhook: same `paymentIntents.retrieve` path, only for intents this server created; idempotent | `Bearer ADMIN_API_TOKEN` |
 | POST | `/api/webhooks/velo` | Raw-body HMAC verification, dedupe on `event.id` (SQLite), then `paymentIntents.retrieve` to set the collection status; a redelivery is a no-op, an unknown or unverifiable event never changes state | Velo signature |

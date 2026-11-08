@@ -2,10 +2,47 @@ import { useCallback, useEffect, useState } from "react";
 
 const apiBase = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
-export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const r = await fetch(apiBase + path, { signal });
-  if (!r.ok) throw new Error(`Server returned ${r.status}`);
+/** Non-2xx reply. `status` lets callers tell 401 (bad signature) from 503 (auth not configured). */
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly detail: string,
+  ) {
+    super(`Server returned ${status}`);
+  }
+}
+
+/** The web and the API sit on different origins (Vercel, Render); the session cookie only travels with this. */
+const credentials: RequestCredentials = "include";
+
+async function parse<T>(r: Response): Promise<T> {
+  if (!r.ok) {
+    let detail = "";
+    try {
+      const body: unknown = await r.json();
+      if (body && typeof body === "object" && "error" in body && typeof body.error === "string")
+        detail = body.error;
+    } catch {
+      /* body was not JSON */
+    }
+    throw new ApiError(r.status, detail);
+  }
   return (await r.json()) as T;
+}
+
+export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  return parse<T>(await fetch(apiBase + path, { signal, credentials }));
+}
+
+export async function postJson<T>(path: string, body?: unknown): Promise<T> {
+  return parse<T>(
+    await fetch(apiBase + path, {
+      method: "POST",
+      credentials,
+      headers: body === undefined ? undefined : { "content-type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    }),
+  );
 }
 
 /** Read-only GET with explicit loading/error state and a retry. */
