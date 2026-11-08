@@ -216,7 +216,7 @@ Web and server deploy separately. Config is committed: [`apps/web/vercel.json`](
 3. **Velo webhook:** in the Velo dashboard, set the endpoint to `https://snapp-server.onrender.com/api/webhooks/velo` and copy its signing secret into `VELO_WEBHOOK_SECRET`.
 4. **Verify from another device:** open the Vercel URL, run the agent decision preview (three `hold` results, no payment), then `curl https://snapp-server.onrender.com/api/health`.
 
-Limits: the Render free plan sleeps when idle and has no persistent disk, so `.data/collections.sqlite` resets on redeploy; attach a disk before relying on recorded collections. The deployed server holds only Velo/admin configuration. Noir role secrets, the Jev key and the Autopilot run stay in operator shells; nothing on the public host can move Testnet funds.
+Limits: the Render free plan sleeps when idle (a GitHub Actions cron in `.github/workflows/keepalive.yml` pings `/api/health` about every 10 minutes to keep it warm; GitHub may delay scheduled runs, so a cold start is still possible) and has no persistent disk, so `.data/collections.sqlite` resets on redeploy; attach a disk before relying on recorded collections. The deployed server holds only Velo/admin configuration. Noir role secrets, the Jev key and the Autopilot run stay in operator shells; nothing on the public host can move Testnet funds.
 
 ## 7. Four parallel workstreams (collaborative, not strict)
 - **UI/UX + Frontend — [JCarloZ24 (JC)](https://github.com/JCarloZ24):** `docs/DESIGN.md`, `docs/UI.md`, reusable components and frontend routes; cutoff review, private employee statements/discrepancies, client evaluation and per-item status views. Brand approval remains on hold; keep sample routes honestly labeled until replaced.

@@ -1,0 +1,32 @@
+name: Keep the demo server awake
+
+# Render's free instance sleeps after 15 minutes idle and takes ~30 s to wake, which looks like an outage
+# to anyone opening the site. This pings the public health endpoint on a schedule. GitHub does not
+# guarantee cron timing (runs are often delayed 5 to 15 minutes under load), so a cold start is still
+# possible but rare. Read-only: /api/health touches nothing.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /api/health
+        run: |
+          set -euo pipefail
+          url="https://snapp-server.onrender.com/api/health"
+          start=$(date +%s)
+          # 90 s total allows for a cold start; retry once on a transient failure.
+          body=$(curl --silent --show-error --fail --max-time 90 --retry 1 --retry-delay 5 "$url")
+          echo "ok in $(( $(date +%s) - start ))s: $body"
+          echo "$body" | grep -q '"ok":true' || { echo "unexpected body"; exit 1; }
