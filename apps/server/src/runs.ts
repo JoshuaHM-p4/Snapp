@@ -1,5 +1,5 @@
 import {DatabaseSync} from 'node:sqlite';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync, readdirSync, readFileSync, existsSync} from 'node:fs';
 import path from 'node:path';
 import {Keypair} from '@stellar/stellar-sdk';
 import type {NoirEvidence} from '@agentpay/shared';
@@ -24,13 +24,15 @@ export class RunStore {
   }
   close():void {this.db.close();}
   /** Accept an `evidence` export. The manifest is recovered from the approval bytes the owner signed. */
-  upsert(evidence:unknown):RunSummary {
+  upsert(evidence:unknown,seed=false):RunSummary {
     const e=evidence as {digest?:unknown;approval?:{manifest?:unknown}|string;operations?:unknown;decisions?:unknown;manifest?:unknown};
     if(!e||typeof e.digest!=='string'||!/^[a-f0-9]{64}$/.test(e.digest))throw new Error('INVALID_EVIDENCE');
     const m=(e.manifest??(typeof e.approval==='object'?e.approval?.manifest:undefined)) as Partial<RunManifest>|undefined;
     if(!m||typeof m.id!=='string'||![m.owner,m.agent,m.merchant].every(k=>typeof k==='string'&&Keypair.fromPublicKey(k as string)))throw new Error('INVALID_EVIDENCE');
     const manifest:RunManifest={id:m.id,owner:m.owner!,agent:m.agent!,merchant:m.merchant!,amountXlm:String(m.amountXlm??''),expiresAt:String(m.expiresAt??''),deviceHash:String(m.deviceHash??'')};
     const now=new Date().toISOString();
+    // A seed never overwrites an operator upload made since boot; an upload always wins.
+    if(seed&&this.get(manifest.id))return this.get(manifest.id)!;
     this.db.prepare('INSERT INTO runs VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET digest=excluded.digest,manifest_json=excluded.manifest_json,evidence_json=excluded.evidence_json,uploaded_at=excluded.uploaded_at')
       .run(manifest.id,e.digest,JSON.stringify(manifest),JSON.stringify({operations:e.operations??[],decisions:e.decisions??[]}),now);
     return this.get(manifest.id)!;
@@ -38,6 +40,19 @@ export class RunStore {
   get(id:string):RunSummary|undefined {
     const row=this.db.prepare('SELECT * FROM runs WHERE id=?').get(id) as Record<string,string>|undefined;
     return row?toSummary(row):undefined;
+  }
+  /**
+   * Load committed evidence files (data/runs/*.json) so roles survive redeploys on hosts without a disk.
+   * Files are public data exported by `npm run noir -- evidence`; a newer upload with the same id wins.
+   */
+  seedFromDir(dir:string):string[] {
+    if(!existsSync(dir))return [];
+    const loaded:string[]=[];
+    for(const f of readdirSync(dir).filter(f=>f.endsWith('.json')).sort()){
+      try{const run=this.upsert(JSON.parse(readFileSync(path.join(dir,f),'utf8')),true);loaded.push(run.id);}
+      catch(e){console.warn(`runs seed: skipped ${f}:`,e instanceof Error?e.message:e);}
+    }
+    return loaded;
   }
   list():RunSummary[] {return (this.db.prepare('SELECT * FROM runs ORDER BY uploaded_at DESC').all() as Record<string,string>[]).map(toSummary);}
   /** Role of a signed-in address: owner or merchant of any uploaded run. Clients are resolved from collections by the caller. */

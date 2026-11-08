@@ -223,16 +223,17 @@ Design: [docs/WALLET_AUTH.md](docs/WALLET_AUTH.md). Sign-in is SEP-10 style: the
 
 **Server (Render), once:**
 1. `node scripts/gen-auth-keys.mjs` locally; paste `AUTH_SERVER_SECRET` and `SESSION_SECRET` into Render → snapp-server → Environment. Set `AUTH_HOME_DOMAIN=snapp-prodigitality.vercel.app` (no scheme).
-2. Upgrade the instance to Starter so the `render.yaml` disk (`/var/data`, 1 GB) mounts; `DATA_DIR=/var/data` is already in the blueprint. On the free plan the disk is ignored and runs, sessions and collections reset on every deploy.
-3. Redeploy. `GET /api/me` returns `authEnabled:true`.
+2. Redeploy. `GET /api/me` returns `authEnabled:true`.
 
-**Publish a run so roles resolve** (operator shell, after any run):
+The free instance has no disk, so server state resets on each deploy. That is acceptable here: sessions only need a new sign-in, collections are demo records, and runs are re-seeded on boot from the committed files in `data/runs/`. To persist everything instead, upgrade to Starter, add a disk at `/var/data` and set `DATA_DIR=/var/data`.
+
+**Publish a run so roles resolve** (operator shell, after any run). Commit its evidence, which is public data (hashes, decisions, manifest; no secrets):
 ```bash
-set -a; . ./apps/server/.env; set +a           # ADMIN_API_TOKEN
 export ALLOWED_MERCHANT_ADDRESSES=<run merchant>
-bash scripts/journal-push.sh .data/<id>.manifest.json
+npm run noir -- evidence --manifest .data/<id>.manifest.json > data/runs/<id>.json
+git add data/runs/<id>.json && git commit -m "Publish run <id>" && git push
 ```
-This uploads the `evidence` JSON (hashes, decisions, manifest; it contains no secrets). The operator journal stays the source of truth; the server copy is read-only.
+The server seeds `data/runs/*.json` on every boot. For an immediate update without a deploy, `bash scripts/journal-push.sh .data/<id>.manifest.json` uploads the same JSON with the admin token (lost on the next redeploy unless also committed). The operator journal stays the source of truth; the server copy is read-only.
 
 **Sign in:** the web header shows Connect. Freighter and other Stellar wallets go through the Stellar Wallets Kit; the Noir extension is offered when installed. The wallet must be on Testnet.
 

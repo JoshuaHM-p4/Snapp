@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
+import path from 'node:path';
 import {evaluateMilestone} from '@agentpay/agent';
 import {createCheckout,retrievePaymentIntent,verifyVeloWebhook} from './payments.js';
 import {getProjects} from './store.js';
@@ -9,6 +10,8 @@ import {RunStore} from './runs.js';
 import {authConfigFromEnv,buildChallenge,clearCookieHeader,cookieHeader,issueSession,requireRole,sessionMiddleware,verifyChallenge} from './auth.js';
 const collections=new CollectionStore();
 const runs=new RunStore();
+// Committed evidence seeds the run list on boot, so roles survive redeploys on the free (diskless) plan.
+{const seeded=runs.seedFromDir(path.resolve(process.cwd(),process.env.RUNS_SEED_DIR??'../../data/runs'));if(seeded.length)console.info('runs seeded from repo:',seeded.join(', '));}
 const authCfg=authConfigFromEnv();
 if(!authCfg)console.warn('Wallet sign-in disabled: set AUTH_SERVER_SECRET, SESSION_SECRET and AUTH_HOME_DOMAIN');
 const secureCookies=process.env.NODE_ENV==='production'||(process.env.PUBLIC_WEB_URL??'').startsWith('https://');
