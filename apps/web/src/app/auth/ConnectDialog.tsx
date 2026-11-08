@@ -99,7 +99,7 @@ export function ConnectDialog({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       <Wallet size={20} aria-hidden="true" />
                       <span>
                         <strong>Stellar wallet</strong>
-                        <small>Freighter, xBull, Albedo, Lobstr and others</small>
+                        <small>Freighter (listed as Varial), xBull, Albedo, Lobstr and others</small>
                       </span>
                     </Button>
                     <Button className="s-connect-option" isDisabled={!noir} onPress={() => void run("noir")}>

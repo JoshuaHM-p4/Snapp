@@ -235,7 +235,7 @@ git add data/runs/<id>.json && git commit -m "Publish run <id>" && git push
 ```
 The server seeds `data/runs/*.json` on every boot. For an immediate update without a deploy, `bash scripts/journal-push.sh .data/<id>.manifest.json` uploads the same JSON with the admin token (lost on the next redeploy unless also committed). The operator journal stays the source of truth; the server copy is read-only.
 
-**Sign in:** the web header shows Connect. Freighter and other Stellar wallets go through the Stellar Wallets Kit; the Noir extension is offered when installed. The wallet must be on Testnet.
+**Sign in:** the web header shows Connect. Freighter and other Stellar wallets go through the Stellar Wallets Kit, where Freighter is listed under its new name **Varial**; the Noir extension is offered when installed. The wallet must be on Testnet.
 
 ## 7. Four parallel workstreams (collaborative, not strict)
 - **UI/UX + Frontend — [JCarloZ24 (JC)](https://github.com/JCarloZ24):** `docs/DESIGN.md`, `docs/UI.md`, reusable components and frontend routes; cutoff review, private employee statements/discrepancies, client evaluation and per-item status views. Brand approval remains on hold; keep sample routes honestly labeled until replaced.

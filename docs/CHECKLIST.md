@@ -92,7 +92,8 @@ All live hackathon gates below remain open. Exercised local checks are recorded 
 - [x] Web: Connect dialog (Stellar Wallets Kit for Freighter/xBull/Albedo/Lobstr, Noir extension when installed), header role chip + address + Sign out, nav gated by role, `/app/runs` (owner) and `/app/payments` (developer) with RequireRole redirects, visitor notice; all API calls `credentials:'include'`
 - [x] Verified locally in a real browser with the demo-1107 wallets: owner sees Your runs (5 operations, decision log), developer sees Your payments (authorization f8023afa… and claim c6e13258…), stranger gets the visitor notice, owner on /app/payments redirects, impostor signature → 401; typecheck 0, web 61, server 6, agent 32, build ok
 - [x] Render: `AUTH_SERVER_SECRET`, `SESSION_SECRET`, `AUTH_HOME_DOMAIN` set (Nov 9). Staying on the free plan: runs re-seed from committed `data/runs/*.json` on boot (verified from an empty data dir), sessions need a new sign-in after a deploy, collections are demo-only
-- [ ] Deployed sign-in with a real Freighter and the Noir extension (not possible headless); Mainnet-refusal path
+- [x] Deployed sign-in with real Freighter (Nov 9): owner wallet connected on snapp-prodigitality.vercel.app, cookie round-trip Vercel→Render works. Freighter appears as "Varial" in the Stellar Wallets Kit picker; dialog copy says so
+- [ ] Noir extension sign-in and the Mainnet-refusal message still unexercised
 - [ ] Step 4 (browser-side signing for owner approve and merchant claim) remains a proposal in docs/WALLET_AUTH.md
 
 ## F. Velo client collections — separate hackathon path, optional to company payroll
