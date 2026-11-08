@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Dialog, Heading, Modal, ModalOverlay } from "react-aria-components";
 import { Puzzle, TriangleAlert, Wallet, X } from "lucide-react";
 import { SnappLoading } from "../../components/ui/SnappLoading";
@@ -14,6 +14,12 @@ type Step = { kind: "pick" } | { kind: "busy"; method: WalletMethod } | { kind: 
  * and for any error.
  */
 export function ConnectDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  // Theme tokens are inline variables on .snapp-root. react-aria portals to <body> by default, which sits
+  // outside that scope and leaves the dialog unstyled; portal into the themed root instead.
+  const [portal, setPortal] = useState<Element | undefined>(undefined);
+  useEffect(() => {
+    setPortal(document.querySelector(".snapp-root") ?? undefined);
+  }, []);
   const { signIn } = useSession();
   const [step, setStep] = useState<Step>({ kind: "pick" });
   const [hidden, setHidden] = useState(false);
@@ -43,6 +49,7 @@ export function ConnectDialog({ isOpen, onClose }: { isOpen: boolean; onClose: (
   return (
     <ModalOverlay
       className="s-modal-overlay"
+      UNSTABLE_portalContainer={portal}
       isOpen={isOpen && !hidden}
       onOpenChange={(open) => !open && close()}
       isDismissable={step.kind !== "busy"}
