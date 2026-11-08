@@ -9,7 +9,21 @@ services:
     buildCommand: npm ci
     startCommand: npm run start -w @agentpay/server
     healthCheckPath: /api/health
+    disk:
+      name: snapp-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
+      - key: DATA_DIR
+        value: /var/data           # collections, sessions and the journal copy survive deploys on the mounted disk
+      - key: AUTH_SERVER_SECRET
+        sync: false              # Stellar secret used only to sign SEP-10 challenges; holds no funds. Generate with scripts/gen-auth-keys.mjs
+      - key: SESSION_SECRET
+        sync: false              # random 32+ bytes; HMAC key for session cookies
+      - key: AUTH_HOME_DOMAIN
+        sync: false              # web host, e.g. snapp-prodigitality.vercel.app
+      - key: NOIR_JOURNAL_PATH
+        value: /var/data/noir-testnet.sqlite   # read-only copy of the operator journal (upload via scripts/journal-push.sh)
       - key: DEMO_MODE
         sync: false              # dashboard-managed: "true" for previews only, "false" (with real Velo keys) to allow checkout creation. A fixed value here would be re-applied on every deploy.
       - key: WEB_ORIGIN
@@ -22,7 +36,6 @@ services:
         sync: false              # Velo Testnet key; webhook endpoint is https://<this-service>/api/webhooks/velo
       - key: VELO_WEBHOOK_SECRET
         sync: false
-# Note: .data/collections.sqlite lives on the instance disk. The free plan has no persistent disk, so
-# recorded collections reset on redeploy. Attach a Render disk mounted at /opt/render/project/src/.data
-# before relying on it beyond a demo. Noir role secrets and the Jev key are never configured here: the
-# agent CLI runs from an operator shell, not from this server.
+# The disk requires a paid instance type (Starter or above); on the free plan Render ignores the disk block and
+# state resets on each deploy. Noir role secrets and the Jev key are never configured here: the agent CLI runs
+# from an operator shell, not from this server.

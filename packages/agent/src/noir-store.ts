@@ -114,6 +114,6 @@ export class Journal {
     const decisions=this.decisions(a.manifest.id).map(({details_json,...row})=>({...row,details:JSON.parse(details_json)}));
     const operations=this.operations(a.manifest.id).map(({operation_json,evidence_json,...row})=>({...row,operation:JSON.parse(operation_json),evidence:JSON.parse(evidence_json),explorer:`https://stellar.expert/explorer/testnet/tx/${row.tx_hash}`,transactionConfirmed:row.state==='succeeded',
       transitions:(this.db.prepare('SELECT state,created_at FROM events WHERE operation_id=? ORDER BY id').all(row.id) as {state:string;created_at:string}[]).map(t=>`${t.created_at} ${t.state}`)}));
-    return {digest:a.digest,scope:'controlled-testnet-experiment; not payroll settlement',decisions,operations};
+    return {digest:a.digest,scope:'controlled-testnet-experiment; not payroll settlement',manifest:a.manifest,decisions,operations};
   }
 }
