@@ -221,13 +221,13 @@ html[data-snapp-theme="light"] .snapp-root {
   min-height: 24px;
   padding: 3px 10px 3px 8px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--chip) 35%, transparent);
-  background: color-mix(in srgb, var(--chip) 7%, transparent);
+  border: 1px solid var(--border);
+  background: transparent;
   color: var(--chip);
   font-size: 12px;
   line-height: 16px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -255,23 +255,22 @@ html[data-snapp-theme="light"] .snapp-root {
   --chip: var(--settled);
 }
 .s-chip--reconciled {
-  --chip: var(--settled);
+  --chip: var(--bg);
+  border-color: var(--settled);
   background: var(--settled);
-  color: var(--bg);
 }
 .s-chip--stop {
   --chip: var(--stop);
 }
 .s-chip--held {
   --chip: var(--stop);
-  background: transparent;
+  border-color: var(--stop);
 }
 .s-chip--unconfirmed {
   --chip: var(--attention);
 }
 .s-chip--testnet {
   --chip: var(--attention);
-  letter-spacing: 0.06em;
 }
 /* Context label: no border, no fill, sentence case. Siblings separate by the row gap alone, so a wrap never strands a separator. */
 .s-meta {
