@@ -4,7 +4,7 @@ import { useApi } from "../api";
 import { useSession } from "../auth/session";
 import { phtDay as day, phtTime } from "../evidence";
 import { middle } from "../money";
-import { ApiState, Chip, PageHeader, ProofLink, StatusChip, TestnetBadge } from "../ui";
+import { ApiState, Meta, PageHeader, ProofLink, StatusChip } from "../ui";
 import { eventXlm, manifestXlm, operationStatus } from "./RunEvidence";
 import "../auth/auth.css";
 
@@ -106,13 +106,10 @@ export default function MyPaymentsPage() {
         lede="Items an owner approved for this wallet and the agent authorized on Stellar Testnet, with the claim that moved the funds. Amounts are XLM from the contract events; every link opens the real transaction."
         meta={
           <>
-            <Chip icon={<Signature size={13} aria-hidden="true" />}>
-              Developer · {session ? middle(session.address, 6, 4) : ""}
-            </Chip>
-            <Chip kind="settled" icon={<ArrowDownToLine size={13} aria-hidden="true" />}>
-              Claim = funds received
-            </Chip>
-            <TestnetBadge />
+            <Meta icon={<Signature aria-hidden="true" />}>
+              Signed in as developer{session ? <>, <span className="s-mono">{middle(session.address, 6, 4)}</span></> : null}
+            </Meta>
+            <Meta icon={<ArrowDownToLine aria-hidden="true" />}>Claim means funds received</Meta>
           </>
         }
       />

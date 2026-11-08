@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { noirProof, proofRoles, veloProof, type ProofStep } from "../proof";
-import { Chip, PageHeader, ProofLink, StatusChip, TestnetBadge } from "../ui";
+import { Chip, Meta, PageHeader, ProofLink, StatusChip } from "../ui";
 import "./proof.css";
 
 const stages: { stage: ProofStep["stage"]; index: string; title: string; who: string }[] = [
@@ -33,7 +33,7 @@ function Flaps({ value, delay }: { value: string; delay: number }) {
 function Outcome({ step }: { step: ProofStep }) {
   if (step.step === "claim") return <StatusChip status="claimed" />;
   if (step.step === "authorize") return <StatusChip status="authorized" />;
-  return <Chip icon={<Check size={13} aria-hidden="true" />}>Confirmed</Chip>;
+  return <StatusChip status="tx_confirmed" label="Confirmed" />;
 }
 
 function Board({ steps, offset }: { steps: ProofStep[]; offset: number }) {
@@ -57,12 +57,10 @@ function Board({ steps, offset }: { steps: ProofStep[]; offset: number }) {
                 <small>{s.detail}</small>
               </td>
               <td>
-                <Chip
-                  kind={signerKind[s.signer]}
-                  icon={s.signer === "agent" ? <Sparkles size={13} aria-hidden="true" /> : undefined}
-                >
+                <span className={`pf-signer pf-signer--${signerKind[s.signer]}`}>
+                  {s.signer === "agent" && <Sparkles size={13} aria-hidden="true" />}
                   {s.signer}
-                </Chip>
+                </span>
               </td>
               <td>
                 <Flaps value={String(s.ledger)} delay={(offset + i) * 120} />
@@ -90,8 +88,8 @@ export default function ProofPage() {
         lede="One owner-approved 1.5 XLM item, decided by Snapp Autopilot and collected by the merchant on Stellar Testnet, Nov 6, 2026. Every transaction below is real and opens on Stellar Expert."
         meta={
           <>
-            <TestnetBadge />
-            <Chip icon={<Check size={13} aria-hidden="true" />}>Confirmed by RPC · contract events matched</Chip>
+            <Chip icon={<Check size={13} aria-hidden="true" />}>Confirmed by RPC</Chip>
+            <Meta>Contract events matched</Meta>
           </>
         }
       />
@@ -165,7 +163,7 @@ export default function ProofPage() {
       <section className="pf-lane pf-lane--velo" aria-labelledby="pf-velo">
         <div className="s-section-head">
           <h2 id="pf-velo">Client collection · Velo</h2>
-          <Chip>Separate from payroll</Chip>
+          <Meta>Separate from payroll</Meta>
         </div>
         <div className="s-panel pf-velo">
           <div className="pf-velo-main">

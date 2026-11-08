@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import type { Project } from "@agentpay/shared";
 import { useApi } from "../api";
-import { ApiState, Chip, PageHeader, Php } from "../ui";
+import { ApiState, Chip, Meta, PageHeader, Php } from "../ui";
 import "./records.css";
 
 export default function ProjectsPage() {
@@ -12,7 +12,7 @@ export default function ProjectsPage() {
       <PageHeader
         title="Projects"
         lede="Work context for each cutoff: milestones, acceptance criteria and evidence. Project management and invoicing stay in Proyekto; Snapp links to them."
-        meta={<Chip>Sample projects</Chip>}
+        meta={<Meta>Sample projects</Meta>}
       />
       <ApiState
         loading={loading}

@@ -26,7 +26,7 @@ import { SnappToastRegion, useSnappToasts } from "../components/ui/SnappControls
 import { useSnappTheme } from "../theme/ThemeProvider";
 import { ConnectDialog } from "./auth/ConnectDialog";
 import { roleLabel, SessionProvider, useSession } from "./auth/session";
-import { Chip, TestnetBadge } from "./ui";
+import { TestnetBadge } from "./ui";
 import { ToastContext } from "./toast";
 import { middle } from "./money";
 import "./app.css";
@@ -88,10 +88,6 @@ function visibleGroups(role: SessionRole | undefined): NavGroup[] {
   });
 }
 
-function roleChipKind(role: SessionRole) {
-  return role === "owner" ? "human" : role === "developer" ? "settled" : "neutral";
-}
-
 /** Connect button, or address + role + sign out. On phones only the icon stays; the drawer carries the rest. */
 function Account({ onConnect }: { onConnect: () => void }) {
   const { session, authEnabled, signOut } = useSession();
@@ -105,9 +101,11 @@ function Account({ onConnect }: { onConnect: () => void }) {
     );
   return (
     <div className="s-account">
-      <Chip kind={roleChipKind(session.role)}>{roleLabel[session.role]}</Chip>
-      <span className="s-account-addr s-mono" title={session.address}>
-        {middle(session.address, 5, 4)}
+      <span className="s-account-who">
+        <span className="s-account-role">{roleLabel[session.role]}</span>
+        <span className="s-account-addr s-mono" title={session.address}>
+          {middle(session.address, 5, 4)}
+        </span>
       </span>
       <button
         type="button"
@@ -131,7 +129,7 @@ function NavAccount({ onConnect }: { onConnect: () => void }) {
       {session ? (
         <>
           <div className="s-nav-account-row">
-            <Chip kind={roleChipKind(session.role)}>{roleLabel[session.role]}</Chip>
+            <span className="s-account-role">{roleLabel[session.role]}</span>
             <span className="s-mono" title={session.address}>
               {middle(session.address, 6, 4)}
             </span>

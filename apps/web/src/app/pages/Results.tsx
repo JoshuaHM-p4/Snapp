@@ -9,7 +9,7 @@ import {
 } from "../fixtures";
 import { formatXlm, xlmToStroops } from "../money";
 import { useNotify } from "../toast";
-import { Chip, PageHeader, PreviewNotice, StatusChip, type Status } from "../ui";
+import { Meta, PageHeader, PreviewNotice, StatusChip, type Status } from "../ui";
 import "./results.css";
 
 const order: RecipientOutcome[] = ["unconfirmed", "held", "failed", "authorized", "claimed"];
@@ -49,10 +49,9 @@ export default function ResultsPage() {
         lede="Each recipient is executed and reconciled on its own. A run is finished only when every recipient is accounted for."
         meta={
           <>
-            <Chip>Sample data</Chip>
-            <Chip>
-              {cutoff.label} · run v{cutoff.runVersion}
-            </Chip>
+            <Meta>Sample data</Meta>
+            <Meta>{cutoff.label}</Meta>
+            <Meta>Run v{cutoff.runVersion}</Meta>
           </>
         }
       />

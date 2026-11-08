@@ -39,7 +39,7 @@ import {
 } from "../cutoffRun";
 import { formatHours, formatPhp, formatXlm, phpNumber } from "../money";
 import { useNotify } from "../toast";
-import { Chip, PageHeader, Php, PreviewNotice, StatusChip } from "../ui";
+import { Chip, Meta, PageHeader, Php, PreviewNotice, StatusChip } from "../ui";
 import "./cutoff.css";
 
 const ordered = orderForReview(employees);
@@ -214,10 +214,8 @@ export default function CutoffReviewPage() {
         meta={
           <>
             <StatusChip status="prepared" />
-            <Chip icon={<Clock3 aria-hidden="true" />}>
-              {cutoff.timezone} · Nov 1 00:00 – Nov 15 23:59
-            </Chip>
-            <Chip>Run v{version}</Chip>
+            <Meta icon={<Clock3 aria-hidden="true" />}>Nov 1 00:00 – Nov 15 23:59, {cutoff.timezone}</Meta>
+            <Meta>Run v{version}</Meta>
           </>
         }
       />

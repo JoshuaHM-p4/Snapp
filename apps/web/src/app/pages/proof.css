@@ -191,3 +191,24 @@
     animation: none;
   }
 }
+
+/* Who signed: the two-hands colour without a pill, since every row carries one. */
+.pf-signer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--muted);
+}
+.pf-signer svg {
+  width: 13px;
+  height: 13px;
+}
+.pf-signer--human {
+  color: var(--human);
+}
+.pf-signer--agent {
+  color: var(--agent-text);
+}

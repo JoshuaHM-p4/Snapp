@@ -1,7 +1,7 @@
 import type { Project } from "@agentpay/shared";
 import { Lock } from "lucide-react";
 import { useApi } from "../api";
-import { ApiState, Chip, PageHeader, StatusChip, type Status } from "../ui";
+import { ApiState, Meta, PageHeader, StatusChip, type Status } from "../ui";
 import "./records.css";
 
 const statusOf: Record<string, Status> = {
@@ -28,7 +28,7 @@ export default function DevelopersPage() {
         title="Developers"
         lede="Who is assigned to which deliverable. In the full product each person sees only their own agreement and pay."
         meta={
-          <Chip icon={<Lock size={13} aria-hidden="true" />}>Owner view · sample people</Chip>
+          <Meta icon={<Lock aria-hidden="true" />}>Owner view, sample people</Meta>
         }
       />
       <ApiState loading={loading} error={error} onRetry={retry} empty={people.size === 0} emptyText="No assignments yet.">

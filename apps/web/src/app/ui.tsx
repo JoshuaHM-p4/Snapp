@@ -79,6 +79,19 @@ export function Chip({
   );
 }
 
+/**
+ * Context, not state: timezone, run version, "Sample data", lane names. Quiet inline text so the
+ * status chips keep their meaning.
+ */
+export function Meta({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
+  return (
+    <span className="s-meta">
+      {icon}
+      {children}
+    </span>
+  );
+}
+
 export function TestnetBadge() {
   return (
     <span className="s-chip s-chip--testnet" title="Stellar Testnet only. No real funds.">

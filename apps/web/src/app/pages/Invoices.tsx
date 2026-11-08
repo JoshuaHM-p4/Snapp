@@ -2,7 +2,7 @@ import { ExternalLink } from "lucide-react";
 import type { Collection, CollectionStatus, Project } from "@agentpay/shared";
 import { useApi } from "../api";
 import { formatXlm, xlmToStroops } from "../money";
-import { ApiState, Chip, PageHeader, Php, ProofLink, StatusChip, type Status } from "../ui";
+import { ApiState, Meta, PageHeader, Php, ProofLink, StatusChip, type Status } from "../ui";
 import "./records.css";
 
 const collectionStatus = (s: CollectionStatus): { status: Status; label: string } => {
@@ -46,7 +46,7 @@ export default function InvoicesPage() {
       <PageHeader
         title="Invoices & collections"
         lede="Client invoices live in Proyekto. Snapp can collect a client payment through a Velo Testnet checkout. A collection never funds payroll and never decides whether someone gets paid."
-        meta={<Chip>Client lane</Chip>}
+        meta={<Meta>Client lane, separate from payroll</Meta>}
       />
 
       <section className="s-section" aria-labelledby="inv-h">

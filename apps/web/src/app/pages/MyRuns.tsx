@@ -4,7 +4,7 @@ import { useApi } from "../api";
 import { useSession } from "../auth/session";
 import { phtDay as day, phtTime } from "../evidence";
 import { middle } from "../money";
-import { ApiState, Chip, CopyButton, PageHeader, TestnetBadge } from "../ui";
+import { ApiState, CopyButton, Meta, PageHeader } from "../ui";
 import { DecisionCard, manifestXlm, OperationsTable } from "./RunEvidence";
 import "../auth/auth.css";
 
@@ -81,10 +81,9 @@ export default function MyRunsPage() {
         lede="Runs where this wallet is the owner who approved the item. Every row is a confirmed Stellar Testnet transaction from the operator's journal; nothing here is live state or real money."
         meta={
           <>
-            <Chip kind="human" icon={<Lock size={13} aria-hidden="true" />}>
-              Owner · {session ? middle(session.address, 6, 4) : ""}
-            </Chip>
-            <TestnetBadge />
+            <Meta icon={<Lock aria-hidden="true" />}>
+              Signed in as owner{session ? <>, <span className="s-mono">{middle(session.address, 6, 4)}</span></> : null}
+            </Meta>
           </>
         }
       />

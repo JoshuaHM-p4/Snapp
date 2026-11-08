@@ -30,7 +30,7 @@ import {
 } from "../fixtures";
 import { formatHours, formatPhp, hourlyPay, sum } from "../money";
 import { useNotify } from "../toast";
-import { Chip, PageHeader, Php, PreviewNotice, StatusChip } from "../ui";
+import { Meta, PageHeader, Php, PreviewNotice, StatusChip } from "../ui";
 import "./statement.css";
 
 const discrepancyRules: TextRules = {
@@ -261,10 +261,8 @@ export default function StatementPage() {
         }
         meta={
           <>
-            <Chip>Sample data</Chip>
-            <Chip icon={<EyeOff size={13} aria-hidden="true" />}>
-              Own data only
-            </Chip>
+            <Meta>Sample data</Meta>
+            <Meta icon={<EyeOff aria-hidden="true" />}>Own data only</Meta>
           </>
         }
       />

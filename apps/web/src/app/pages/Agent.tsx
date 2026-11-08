@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { ArrowRight } from "lucide-react";
 import { secondsBetween, useNoirEvidence } from "../evidence";
-import { ApiState, Chip, PageHeader, TestnetBadge } from "../ui";
+import { ApiState, Chip, Meta, PageHeader } from "../ui";
 import { DecisionCard, OperationsTable } from "./RunEvidence";
 import "./agent.css";
 
@@ -143,7 +143,7 @@ export default function AgentPage() {
             <Chip kind="agent" icon={<Sparkles size={13} aria-hidden="true" />}>
               Agent activity
             </Chip>
-            <TestnetBadge />
+            <Meta>Recorded evidence snapshot</Meta>
           </>
         }
       />

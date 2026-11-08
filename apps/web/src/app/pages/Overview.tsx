@@ -6,7 +6,7 @@ import { useNoirEvidence } from "../evidence";
 import { cutoff, employees } from "../fixtures";
 import { hourlyPay, sum } from "../money";
 import { noirProof } from "../proof";
-import { ApiState, Chip, PageHeader, Php, ProofLink, StatusChip } from "../ui";
+import { ApiState, Meta, PageHeader, Php, ProofLink, StatusChip } from "../ui";
 import "./records.css";
 
 const flagged = employees.flatMap((e) => e.entries.filter((x) => x.agentFlag)).length;
@@ -79,8 +79,8 @@ export default function OverviewPage() {
         meta={
           <>
             <StatusChip status="prepared" />
-            <Chip>Sample data</Chip>
-            <Chip>{cutoff.timezone}</Chip>
+            <Meta>Sample data</Meta>
+            <Meta>{cutoff.timezone}</Meta>
           </>
         }
       />
