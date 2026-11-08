@@ -181,6 +181,8 @@ scripts/              Local smoke check
 11 slides for the Velo x Noir Agentic Payment Hackathon, built from `deck/build.js` (`cd deck && npm install && node build.js`; needs Python 3 with Pillow for the tilted screenshot frames). Screenshot and logo slots still to fill are listed in [docs/DECK_ASSETS_NEEDED.md](docs/DECK_ASSETS_NEEDED.md); the plan is in [docs/PITCH_DECK_PLAN.md](docs/PITCH_DECK_PLAN.md).
 
 ## What's next
+Wallet sign-in (SEP-10 challenge with Freighter or the Noir extension), roles derived from the signed manifest, and browser-side signing for the owner and recipient: design and plan in [docs/WALLET_AUTH.md](docs/WALLET_AUTH.md).
+
 Build the Proyekto-linked cutoff/review model, versioned client evaluations, private employee statements and immutable owner approval first. Add authenticated, durable per-item execution and reconciliation before exposing money-moving controls. Demonstrate owner-approved Testnet execution and merchant claim through Noir; demonstrate Velo collection separately, not as automatic payroll funding.
 
 For company use, evaluate supported bank bulk-disbursement and existing payroll tools before building a custom bank API. Actual bank execution and production payroll compliance remain outside the Testnet hackathon scope. Brand styling stays on hold until Prodigitality approves it.
